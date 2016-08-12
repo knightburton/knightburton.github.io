@@ -60,5 +60,110 @@
             tError: '<a href="%url%">The image #%curr%</a> could not be loaded.'
         }
     });
-
 })(jQuery); // End of use strict
+
+// Google map
+var map = null;
+google.maps.event.addDomListener(window, 'load', initMap);
+google.maps.event.addDomListener(window, 'resize', function() {
+    map.setCenter(new google.maps.LatLng(46.36336, 20.10201));
+});
+function initMap() {
+    var mapOptions = {
+        zoom: 15,
+        center: new google.maps.LatLng(46.36336, 20.10201); // Sandorfalva
+        disableDefaultUI: true,
+        scrollwheel: false,
+        style: [{
+            "featureType":"administrative.locality",
+            "elementType":"geometry",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"administrative.locality",
+            "elementType":"geometry.fill",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"administrative.locality",
+            "elementType":"geometry.stroke",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"administrative.locality",
+            "elementType":"labels.icon",
+            "stylers": [{
+                "visibility":"on"
+            }, {
+                "hue":"#00ff66"
+            }]
+        }, {
+            "featureType":"administrative.neighborhood",
+            "elementType":"geometry",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"administrative.neighborhood",
+            "elementType":"labels",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"poi.place_of_worship",
+            "elementType":"geometry",
+            "stylers": [{
+                "visibility":"on"
+            }, {
+                "hue":"#ff003d"
+            }]
+        }, {
+            "featureType":"poi.place_of_worship",
+            "elementType":"geometry.fill",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"poi.place_of_worship",
+            "elementType":"geometry.stroke",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"poi.place_of_worship",
+            "elementType":"labels",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"poi.place_of_worship",
+            "elementType":"labels.text",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"poi.place_of_worship",
+            "elementType":"labels.text.fill",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"poi.place_of_worship",
+            "elementType":"labels.text.stroke",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }, {
+            "featureType":"poi.place_of_worship",
+            "elementType":"labels.icon",
+            "stylers": [{
+                "visibility":"on"
+            }]
+        }]
+    };
+    var mapElement = document.getElementById('map');
+    map = new google.maps.Map(mapElement, mapOptions);
+}
