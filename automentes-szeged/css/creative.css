@@ -195,6 +195,7 @@ header {
 header .header-content {
   position: relative;
   text-align: center;
+  margin-top: 30px;
   padding: 100px 15px 100px;
   width: 100%;
 }
@@ -266,6 +267,10 @@ header .header-content .header-content-inner p {
 @media (min-width: 992px) {
   .service-box {
     margin: 20px auto 0;
+  }
+
+  .service-description {
+    min-height: 120px;
   }
 }
 
@@ -477,6 +482,40 @@ body {
   margin-bottom: 15px;
 }
 
+.details-btn {
+  margin-top: 30px;
+}
+
 .lang-btn {
   padding-top: 55px;
+}
+
+.call-btn {
+  font-size: 25px;
+}
+
+.motto {
+  font-size: 25px;
+}
+
+.list li {
+  list-style-type: none;
+  margin: 15px;
+}
+
+.list li .fa {
+  float: left;
+}
+
+.list li div {
+  margin-left: 30px;
+}
+
+.car-logos {
+  display: block;
+  text-align: center;
+}
+
+.car-logos img {
+  display: inline-block;
 }

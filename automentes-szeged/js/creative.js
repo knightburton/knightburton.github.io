@@ -49,14 +49,16 @@
 
 // Google map
 var map = null;
+var SFLat = 46.3710238;
+var SFLong = 20.09168520000003;
 google.maps.event.addDomListener(window, 'load', initMap);
 google.maps.event.addDomListener(window, 'resize', function() {
-    map.setCenter(new google.maps.LatLng(46.36336, 20.10201));
+    map.setCenter(new google.maps.LatLng(SFLat, SFLong));
 });
 function initMap() {
     var mapOptions = {
         zoom: 14,
-        center: new google.maps.LatLng(46.36336, 20.10201), // Sandorfalva
+        center: new google.maps.LatLng(SFLat, SFLong),
         disableDefaultUI: true,
         scrollwheel: false,
         style: [{
@@ -151,7 +153,7 @@ function initMap() {
     };
     var mapElement = document.getElementById('map');
     map = new google.maps.Map(mapElement, mapOptions);
-    var myLatLng = new google.maps.LatLng(46.36336, 20.10201);
+    var myLatLng = new google.maps.LatLng(SFLat, SFLong);
     var beachMarker = new google.maps.Marker({
         position: myLatLng,
         map: map,
