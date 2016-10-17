@@ -173,7 +173,7 @@ jQuery(document).ready(function ($) {
         $MinDragOffsetToSlide: 20,
         //$SlideWidth: 600,
         //$SlideHeight: 300,
-        $SlideSpacing: 0,
+        $SlideSpacing: 5,
         $Cols: 1,
         $ParkingPosition: 0,
         $UISearchMode: 1,
