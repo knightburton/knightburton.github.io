@@ -1,3 +1,6 @@
 [submodule "SpaceBubbles"]
 	path = SpaceBubbles
 	url = https://github.com/knightburton/SpaceBubbles
+[submodule "Colors"]
+	path = Colors
+	url = https://github.com/knightburton/Colors
