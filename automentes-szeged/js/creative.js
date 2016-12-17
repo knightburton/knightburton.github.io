@@ -161,61 +161,23 @@ function initMap() {
 }
 
 jQuery(document).ready(function ($) {
-    var options = {
-        $AutoPlay: true,
-        $AutoPlaySteps: 1,
-        $Idle: 3000,
-        $PauseOnHover: 1,
-
-        $ArrowKeyNavigation: true,
-        $SlideEasing: $JssorEasing$.$EaseOutQuint,
-        $SlideDuration: 1500,
-        $MinDragOffsetToSlide: 20,
-        //$SlideWidth: 600,
-        //$SlideHeight: 300,
-        $SlideSpacing: 5,
-        $Cols: 1,
-        $ParkingPosition: 0,
-        $UISearchMode: 1,
-        $PlayOrientation: 1,
-        $DragOrientation: 1,
-
-        $ArrowNavigatorOptions: {
-            $Class: $JssorArrowNavigator$,
-            $ChanceToShow: 2,
-            $AutoCenter: 2,
-            $Steps: 1,
-            $Scale: false
-        },
-
-        $BulletNavigatorOptions: {
-            $Class: $JssorBulletNavigator$,
-            $ChanceToShow: 2,
-            $AutoCenter: 1,
-            $Steps: 1,
-            $Rows: 1,
-            $SpacingX: 12,
-            $SpacingY: 4,
-            $Orientation: 1,
-            $Scale: false
-        }
-    };
-
-    var jssor_slider1 = new $JssorSlider$("slider1_container", options);
-
-    //responsive code begin
-    function ScaleSlider() {
-        var parentWidth = jssor_slider1.$Elmt.parentNode.clientWidth;
-        if (parentWidth) {
-            jssor_slider1.$ScaleWidth(parentWidth - 30);
-        } else {
-            window.setTimeout(ScaleSlider, 30);
-        }
-    }
-    ScaleSlider();
-
-    $(window).bind("load", ScaleSlider);
-    $(window).bind("resize", ScaleSlider);
-    $(window).bind("orientationchange", ScaleSlider);
-    //responsive code end
+    jQuery("#gallery").unitegallery({
+        gallery_theme: "compact",
+    });
 });
+
+var images = [
+    ['Autómentés',      'automentes',       35],
+    ['Autószállítás',   'autoszallitas',    13],
+    ['Szerelés',        'szereles',         3],
+    ['Motorszállítás',  'motorszallitas',   2],
+    ['Felszerelés',     'felszereles',      3],
+    ['Munkatársak',     'munkatarsak',      3],
+];
+
+for (var i = 0; i <= images.length - 1; i++) {
+    for (var j = images[i][2]; j > 0; j--) {
+        var img = '<img alt="' + images[i][0] + ' ' + j + '" src="img/content/thumbs/' + images[i][1] + '_' + j + '_tn.jpg" data-image="img/content/original/' + images[i][1] + '_' + j + '.jpg" data-description="' + images[i][0] + '">';
+        $('#gallery').append(img);
+    }
+}

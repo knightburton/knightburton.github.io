@@ -31,6 +31,10 @@
     <!-- Plugin CSS -->
     <link href="vendor/magnific-popup/magnific-popup.css" rel="stylesheet">
 
+    <!-- Gallery CSS -->
+    <link rel='stylesheet' href='unitegallery/css/unite-gallery.css' type='text/css' />
+    <link rel='stylesheet' href='unitegallery/themes/default/ug-theme-default.css' type='text/css' />
+
     <!-- Theme CSS -->
     <link href="css/creative.css" rel="stylesheet">
 
@@ -322,109 +326,9 @@
             <div class="row">
                 <div class="col-lg-10 col-lg-offset-1 text-center">
                     <h2>Munka Közben</h2>
-                    <div id="slider1_container">
 
-                    <!-- Loading Screen -->
-                    <div id="slider_loading_screen" u="loading">
-                        <div id="slider_loading_background" ></div>
-                        <div id="slider_loading_gif" ></div>
-                    </div>
+                    <div id="gallery" style="display:none;"></div>
 
-                    <!-- Slides Container -->
-                    <div id="slides_container" u="slides">
-                        <div>
-                            <img u="image" src2="img/content/autoszallitas_3.jpg" title="Autószállítás 3." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/autoszallitas_4.jpg" title="Autószállítás 4." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/autoszallitas_5.jpg" title="Autószállítás 5." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/autoszallitas_6.jpg" title="Autószállítás 6." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/munkatars_2.jpg" title="Munkatárs" />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_18.jpg" title="Autómentés 18." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_19.jpg" title="Autómentés 19." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_20.jpg" title="Autómentés 20." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_1.jpg" title="Autómentés 1." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_2.jpg" title="Autómentés 2." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/autoszallitas_1.jpg" title="Autószállítás 1." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/autoszallitas_2.jpg" title="Autószállítás 2." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_3.jpg" title="Autómentés 3." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_4.jpg" title="Autómentés 4." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_5.jpg" title="Autómentés 5." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/munkatars_1.jpg" title="Munkatárs" />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_6.jpg" title="Autómentés 6." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_7.jpg" title="Autómentés 7." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_8.jpg" title="Autómentés 8." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_9.jpg" title="Autómentés 9." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_10.jpg" title="Autómentés 10." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_11.jpg" title="Autómentés 11." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_12.jpg" title="Autómentés 12." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_13.jpg" title="Autómentés 13." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_14.jpg" title="Autómentés 14." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_15.jpg" title="Autómentés 15." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_16.jpg" title="Autómentés 16." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/automentes_17.jpg" title="Autómentés 17." />
-                        </div>
-                        <div>
-                            <img u="image" src2="img/content/felszereles_1.jpg" title="Felszerelés - Csörlő" />
-                        </div>
-                    </div>
-
-                    <!-- Arrow Left -->
-                    <span u="arrowleft" class="jssora11l"></span>
-                    <!-- Arrow Right -->
-                    <span u="arrowright" class="jssora11r" ></span>
                 </div>
             </div>
             <div class="row">
@@ -501,7 +405,7 @@
     <!-- Footer -->
     <footer class="bg-dark">
         <div class="container text-center">
-            <p class="small">Copyright &copy; automentes-szeged.hu 2016 | Készítette: knightburton</p>
+            <p class="small">Copyright &copy; automentes-szeged.hu 2016 | Készítette: <a href="http://knightburton.github.io/">knightburton</a></p>
         </div>
     </footer>
 
@@ -515,11 +419,12 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
     <script src="vendor/scrollreveal/scrollreveal.min.js"></script>
 
+    <!-- Gallery JavaScript -->
+    <script type='text/javascript' src='unitegallery/js/unitegallery.min.js'></script>
+    <script type='text/javascript' src='unitegallery/themes/compact/ug-theme-compact.js'></script>
+
     <!-- Google API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwu8lrnINeOCtnqqk9U1uyY6XdnXoSjVM"></script>
-
-    <!-- Slider script -->
-    <script src="js/jssor.slider.mini.js"></script>
 
     <!-- Theme JavaScript -->
     <script src="js/creative.js"></script>
