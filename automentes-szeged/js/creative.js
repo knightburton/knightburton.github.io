@@ -167,7 +167,7 @@ jQuery(document).ready(function ($) {
 });
 
 var images = [
-    ['Autómentés',      'automentes',       35],
+    ['Autómentés',      'automentes',       37],
     ['Autószállítás',   'autoszallitas',    13],
     ['Szerelés',        'szereles',         3],
     ['Motorszállítás',  'motorszallitas',   2],
