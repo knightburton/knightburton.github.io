@@ -49,8 +49,8 @@
 
 // Google map
 var map = null;
-var SFLat = 46.3710238;
-var SFLong = 20.09168520000003;
+var SFLat = 46.363457;
+var SFLong = 20.103038;
 google.maps.event.addDomListener(window, 'load', initMap);
 google.maps.event.addDomListener(window, 'resize', function() {
     map.setCenter(new google.maps.LatLng(SFLat, SFLong));
