@@ -55,6 +55,18 @@ input[type="number"] {
 }
 
 /**
+*	Modal
+*/
+.modal .modal-dialog .modal-content .modal-body #new-file-name {
+	position: relative;
+	width: 100%;
+}
+
+.modal .modal-dialog .modal-content .modal-body #modal-info p {
+	color: #f00;
+}
+
+/**
 * Control panel
 */
 .main-buttons {
@@ -107,20 +119,19 @@ input[type="number"] {
 /*
 *	Editor wrapper
 */
-/* status bar */
-#status-bar-content {
-	position: relative;
-	width: 100%;
-	height: 20px;
+/* file bar */
+.file-button-bar #file-buttons {
+	margin: 2px 5px 4px 0;
 }
 
 /* editor */
 #editor {
 	position: relative;
 	width: 100%;
-	min-height: 730px;
+	min-height: 755px;
 	border: 1px solid #d9d9d9;
-	border-radius: 5px;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
 }
 
 .ace_gutter-cell {
@@ -139,16 +150,68 @@ input[type="number"] {
 
 .execute-gutter-cell-marker {
 	border-top: 1px solid rgba(0,0,0, 0.25);
-  border-bottom: 1px solid rgba(0,0,0, 0.25);
-  border-left: 1px solid rgba(0,0,0, 0.25);
+	border-bottom: 1px solid rgba(0,0,0, 0.25);
+	border-left: 1px solid rgba(0,0,0, 0.25);
 }
 
 .execute-marker {
 	position: absolute;
-  border-top: 1px solid rgba(0,0,0, 0.25);
-  border-bottom: 1px solid rgba(0,0,0, 0.25);
-  border-right: 1px solid rgba(0,0,0, 0.25);
-  z-index: 1000;
+	border-top: 1px solid rgba(0,0,0, 0.25);
+	border-bottom: 1px solid rgba(0,0,0, 0.25);
+	border-right: 1px solid rgba(0,0,0, 0.25);
+	z-index: 1000;
+}
+
+/**
+* File tabs
+*/
+/* Style the tab */
+div.file-tabs {
+	overflow: hidden;
+	border-top: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	background-color: #ebebeb;
+	min-height: 30px;
+}
+
+/* Style the links inside the tab */
+div.file-tabs a {
+	position: relative;
+	float: left;
+	display: inline-block;
+	color: #000;
+	text-align: center;
+	padding: 5px 25px 5px 5px;
+	text-decoration: none;
+	transition: 0.3s;
+}
+
+/* Change background color of links on hover */
+div.file-tabs a:hover {
+	background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+div.file-tabs a:focus, .active {
+	background-color: #ccc;
+}
+
+div.file-tabs a i {
+	position: absolute;
+	width: 15px;
+	height: 15px;
+	top: 2px;
+	right: 5px;
+	z-index: 100;
+}
+
+div.file-tabs a i:hover {
+	-ms-transform: scale(1.5, 1.5); /* IE 9 */
+	-webkit-transform: scale(1.5, 1.5); /* Safari */
+	transform: scale(1.5, 1.5);
 }
 
 /**
@@ -170,7 +233,7 @@ input[type="number"] {
 #debugger-panel .single-panel .single-panel-content {
 	position: relative;
 	width: 100%;
-	height: 198px;
+	height: 210px;
 	display: block;
 	overflow-y: auto;
 	resize: vertical;

@@ -12,6 +12,10 @@ var JERRY_DEBUGGER_RELEASE_BYTE_CODE_CP = 11;
 var JERRY_DEBUGGER_BREAKPOINT_HIT = 12;
 var JERRY_DEBUGGER_BACKTRACE = 13;
 var JERRY_DEBUGGER_BACKTRACE_END = 14;
+var JERRY_DEBUGGER_EVAL_RESULT = 15;
+var JERRY_DEBUGGER_EVAL_RESULT_END = 16;
+var JERRY_DEBUGGER_EVAL_ERROR = 17;
+var JERRY_DEBUGGER_EVAL_ERROR_END = 18;
 
 var JERRY_DEBUGGER_FREE_BYTE_CODE_CP = 1;
 var JERRY_DEBUGGER_UPDATE_BREAKPOINT = 2;
@@ -20,6 +24,8 @@ var JERRY_DEBUGGER_CONTINUE = 4;
 var JERRY_DEBUGGER_STEP = 5;
 var JERRY_DEBUGGER_NEXT = 6;
 var JERRY_DEBUGGER_GET_BACKTRACE = 7;
+var JERRY_DEBUGGER_EVAL = 8;
+var JERRY_DEBUGGER_EVAL_PART = 9;
 
 var client = {
   socket : null,
@@ -28,12 +34,31 @@ var client = {
 
 var env = {
   editor : ace.edit("editor"),
-  fileName : null,
+  EditSession : null,
+  evalResult : null,
+  breakpointIds : [],
   numberOfHiddenPanel : 0,
   isBacktracePanelActive : true,
   isContActive : true,
-  breakpointIds : [],
   commandLine : $("#command"),
+  clBacktrace : false,
+};
+
+var button = {
+  continue : 0,
+  stop : 1,
+};
+
+var filetab = {
+  isWelcome : true,
+  welcome : 0,
+  work : 1,
+};
+
+var session = {
+  nextID : 0,
+  activeID : 0,
+  data : [],
 };
 
 var marker = {
@@ -42,11 +67,19 @@ var marker = {
 };
 
 var keybindings = {
-  ace: null,
-  vim: "ace/keyboard/vim",
-  emacs: "ace/keyboard/emacs",
-  custom: null, // Create own bindings here.
+  ace : null,
+  vim : "ace/keyboard/vim",
+  emacs : "ace/keyboard/emacs",
+  custom : null, // Create own bindings here.
 };
+
+/*
+██       ██████   ██████   ██████  ███████ ██████
+██      ██    ██ ██       ██       ██      ██   ██
+██      ██    ██ ██   ███ ██   ███ █████   ██████
+██      ██    ██ ██    ██ ██    ██ ██      ██   ██
+███████  ██████   ██████   ██████  ███████ ██   ██
+*/
 
 var Logger = function(panelId)
 {
@@ -68,6 +101,14 @@ var Logger = function(panelId)
 };
 
 var logger = new Logger("console-panel");
+
+/*
+██████  ██    ██ ████████ ████████  ██████  ███    ██ ███████
+██   ██ ██    ██    ██       ██    ██    ██ ████   ██ ██
+██████  ██    ██    ██       ██    ██    ██ ██ ██  ██ ███████
+██   ██ ██    ██    ██       ██    ██    ██ ██  ██ ██      ██
+██████   ██████     ██       ██     ██████  ██   ████ ███████
+*/
 
 function disableButtons(disable)
 {
@@ -91,16 +132,17 @@ function disableButtons(disable)
   }
 }
 
-function updateContinueStopButton(str) {
-  switch (str)
+function updateContinueStopButton(value)
+{
+  switch (value)
   {
-    case "stop":
+    case button.stop:
     {
       env.isContActive = false;
       $("#continue-stop-button i").removeClass("fa-play");
       $("#continue-stop-button i").addClass("fa-stop");
     } break;
-    case "continue":
+    case button.continue:
     {
       $("#continue-stop-button i").removeClass("fa-stop");
       $("#continue-stop-button i").addClass("fa-play");
@@ -109,21 +151,35 @@ function updateContinueStopButton(str) {
   }
 }
 
-function scrollDownToBottom(element)
-{
-  element.scrollTop(element.prop("scrollHeight"));
-}
+/*
+██████  ██████        ██████   █████  ████████  █████
+██   ██ ██   ██       ██   ██ ██   ██    ██    ██   ██
+██████  ██████  █████ ██   ██ ███████    ██    ███████
+██   ██ ██            ██   ██ ██   ██    ██    ██   ██
+██████  ██            ██████  ██   ██    ██    ██   ██
+*/
 
-function resetPanel(element)
+function getLinesFromRawData(raw)
 {
-  element.empty();
+  var lines = [];
+  var sessionName = getSessionNameById(session.activeID);
+  for (var i in raw)
+  {
+    if (raw[i].resource.endsWith(sessionName))
+    {
+      lines.push(raw[i].line);
+    }
+  }
+
+  return lines;
 }
 
 function updateInvalidLines()
 {
   if (client.debuggerObj)
   {
-    var lines = client.debuggerObj.getBreakpointLines().sort(function(a, b){ return a - b} );
+    var lines = getLinesFromRawData(client.debuggerObj.getBreakpointLines());
+    lines.sort(function(a, b){ return a - b} );
 
     for (var i = env.editor.session.getLength(); i > 0; i--) {
       if (lines.includes(i) === false)
@@ -133,6 +189,16 @@ function updateInvalidLines()
       }
     }
   }
+}
+
+function deleteBreakpointsFromEditor()
+{
+  for (var i in env.breakpointIds)
+  {
+    env.editor.session.clearBreakpoint(i);
+  }
+
+  resetPanel($("#breakpoints-content"));
 }
 
 function getbacktrace()
@@ -148,12 +214,10 @@ function getbacktrace()
     }
     else
     {
-      logger.err("Invalid maximum depth argument.");
+      logger.err("Invalid maximum depth parameter.");
       return true;
     }
   }
-
-  logger.log("Backtrace:");
 
   client.debuggerObj.encodeMessage("BI", [ JERRY_DEBUGGER_GET_BACKTRACE, max_depth ]);
 }
@@ -173,6 +237,24 @@ function unhighlightCurrentLine(){
   env.editor.session.removeGutterDecoration(marker.lastMarked, "execute-gutter-cell-marker");
 }
 
+/*
+██████   █████  ███    ██ ███████ ██      ███████
+██   ██ ██   ██ ████   ██ ██      ██      ██
+██████  ███████ ██ ██  ██ █████   ██      ███████
+██      ██   ██ ██  ██ ██ ██      ██           ██
+██      ██   ██ ██   ████ ███████ ███████ ███████
+*/
+
+function scrollDownToBottom(element)
+{
+  element.scrollTop(element.prop("scrollHeight"));
+}
+
+function resetPanel(element)
+{
+  element.empty();
+}
+
 function updateBacktracePanel(frame, info)
 {
   var resource = info.func.resource || info;
@@ -180,14 +262,14 @@ function updateBacktracePanel(frame, info)
   var func = info.func.name || "-";
 
   var panel = $("#backtrace-content");
-  panel.append("\
-    <div class='list-row'>\
-      <div class='list-col list-col-0'>" + frame + "</div>\
-      <div class='list-col list-col-1'>" + resource + "</div>\
-      <div class='list-col list-col-2'>" + line + "</div>\
-      <div class='list-col list-col-3'>" + func + "</div>\
-    </div>\
-  ");
+  panel.append(
+    "<div class='list-row'>" +
+      "<div class='list-col list-col-0'>" + frame + "</div>" +
+      "<div class='list-col list-col-1'>" + resource + "</div>" +
+      "<div class='list-col list-col-2'>" + line + "</div>" +
+      "<div class='list-col list-col-3'>" + func + "</div>" +
+    "</div>"
+  );
   scrollDownToBottom(panel);
 }
 
@@ -205,169 +287,502 @@ function updateBreakpointsPanel()
     var id = activeBreakpoints[i].activeIndex || "-";
     var func = activeBreakpoints[i].func.name || "-";
 
-    panel.append("\
-      <div class='list-row' id='br-" + line + "-" + id + "'>\
-        <div class='list-col list-col-0'>" + resource + "</div>\
-        <div class='list-col list-col-1'>" + line + "</div>\
-        <div class='list-col list-col-2'>" + id + "</div>\
-        <div class='list-col list-col-3'>" + func + "</div>\
-      </div>\
-    ");
+    panel.append(
+      "<div class='list-row' id='br-" + line + "-" + id + "'>" +
+        "<div class='list-col list-col-0'>" + resource + "</div>" +
+        "<div class='list-col list-col-1'>" + line + "</div>" +
+        "<div class='list-col list-col-2'>" + id + "</div>" +
+        "<div class='list-col list-col-3'>" + func + "</div>" +
+      "</div>"
+    );
   }
 
   scrollDownToBottom(panel);
 }
+
+/*
+███████ ███████ ███████ ███████ ██  ██████  ███    ██
+██      ██      ██      ██      ██ ██    ██ ████   ██
+███████ █████   ███████ ███████ ██ ██    ██ ██ ██  ██
+     ██ ██           ██      ██ ██ ██    ██ ██  ██ ██
+███████ ███████ ███████ ███████ ██  ██████  ██   ████
+*/
+
+function setWelcomeSession()
+{
+  filetab.isWelcome = true;
+
+  // First start.
+  if (getSessionById(0) == null)
+  {
+    var welcome = "/**\n" +
+                  "* Welcome in the JerryScript Remote Debugger WebIDE.\n" +
+                  "*\n" +
+                  "* Open or create a new file to start the work please.\n" +
+                  "*/\n";
+
+    var eSession = new EditSession(welcome, "ace/mode/javascript");
+    session.data.push(
+    {
+      id: 0,
+      name: "welcome.js",
+      editSession: eSession
+    });
+  }
+
+  updateFilePanel(0, "welcome.js", filetab.welcome);
+  switchSession(0);
+
+  // Enable the read only mode in the editor.
+  env.editor.setReadOnly(true);
+}
+
+function getSessionNameById(id)
+{
+  for (var i in session.data)
+  {
+    if (session.data[i].id == id)
+    {
+      return session.data[i].name;
+    }
+  }
+
+  return null;
+}
+
+function getSessionIdbyName(name)
+{
+  for (var i in session.data)
+  {
+    if (name.endsWith(session.data[i].name))
+    {
+      return session.data[i].id;
+    }
+  }
+
+  return 0;
+}
+
+function getSessionById(id)
+{
+  for (var i in session.data)
+  {
+    if (session.data[i].id == id)
+    {
+      return session.data[i].editSession;
+    }
+  }
+
+  return null;
+}
+
+function deleteSessionByAttr(attr, value)
+{
+    var i = session.data.length;
+    while(i--)
+    {
+      if(session.data[i]
+         && session.data[i].hasOwnProperty(attr)
+         && session.data[i][attr] === parseInt(value))
+      {
+        session.data.splice(i,1);
+      }
+    }
+}
+
+function switchSession(id)
+{
+  selectTab(id);
+
+  // Set the session based on id.
+  session.activeID = id;
+  env.editor.setSession(getSessionById(id));
+
+  // Disable the read only mode from the editor.
+  if (env.editor.getReadOnly())
+  {
+    env.editor.setReadOnly(false);
+  }
+
+  if (!client.debuggerObj)
+  {
+    deleteBreakpointsFromEditor();
+  }
+}
+
+function getSessionNeighbourById(id)
+{
+  for (var i = 1; i < session.data.length; i++)
+  {
+    if (session.data[i].id === parseInt(id))
+    {
+      if (session.data[i - 1] !== undefined && session.data[i - 1].id !== 0)
+      {
+        return session.data[i - 1].id;
+      }
+      if (session.data[i + 1] !== undefined)
+      {
+        return session.data[i + 1].id;
+      }
+    }
+  }
+
+  return 0;
+}
+
+/*
+████████  █████  ██████
+   ██    ██   ██ ██   ██
+   ██    ███████ ██████
+   ██    ██   ██ ██   ██
+   ██    ██   ██ ██████
+*/
+
+function updateFilePanel(id, name, type)
+{
+  if (filetab.isWelcome && type === filetab.work)
+  {
+    $(".file-tabs").empty();
+    filetab.isWelcome = false;
+  }
+
+  var tab = "";
+
+  tab += "<a href='javascript:void(0)' class='tablinks' id='tab-" + id + "'> " + name;
+  if (type == filetab.work)
+  {
+    tab += "<i class='fa fa-times' aria-hidden='true'></i>";
+  }
+  tab += "</a>";
+
+  $(".file-tabs").append(tab);
+
+  //selectTab(id);
+
+  $("#tab-" + id).on("click", function()
+  {
+    switchSession(id);
+  });
+
+  $("#tab-" + id + " i").on("click", function()
+  {
+    closeTab(id);
+  });
+}
+
+function selectTab(id)
+{
+  // Get all elements with class="tablinks" and remove the class "active"
+  var tablinks = $(".tablinks");
+  for (var i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  // Set the current tab active.
+  $("#tab-" + id)[0].className += " active";
+}
+
+
+function closeTab(id)
+{
+  // Remove the sesison tab from the session bar.
+  $("#tab-" + id).remove();
+
+  // If the selected session is the current session
+  // let's switch to an other existing session.
+  if (id == session.activeID)
+  {
+    var nID = getSessionNeighbourById(id);
+    if (nID != 0)
+    {
+      switchSession(nID);
+    }
+    else
+    {
+      setWelcomeSession();
+    }
+  }
+
+  // Delete the selected sesison.
+  deleteSessionByAttr("id", id);
+}
+
+/*
+██████  ███████  █████  ██████  ██    ██
+██   ██ ██      ██   ██ ██   ██  ██  ██
+██████  █████   ███████ ██   ██   ████
+██   ██ ██      ██   ██ ██   ██    ██
+██   ██ ███████ ██   ██ ██████     ██
+*/
 
 $(document).ready(function()
 {
   // Init the ACE editor.
   env.editor.setTheme("ace/theme/chrome");
   var JavaScriptMode = ace.require("ace/mode/javascript").Mode;
+  EditSession = ace.require("ace/edit_session").EditSession;
   env.editor.session.setMode(new JavaScriptMode());
   env.editor.setShowInvisibles(false);
 
   // Workaround for the auto scrolling when set the document value.
-  // This is gonna be fixed in the next version of ace.  
+  // This is gonna be fixed in the next version of ace.
   env.editor.$blockScrolling = Infinity;
 
-  // Editor settings button event.
-  $("#editor-settings-button").on("click", function() {
+  setWelcomeSession();
+
+  /*
+  * Editor settings button event.
+  */
+  $("#editor-settings-button").on("click", function()
+  {
     $(".control-panel-wrapper").toggleClass("block-control-panel-wrapper");
   });
 
-  // File load button event.
-  $("#open-file-button").on("click", function() {
+  /*
+  * File load button.
+  */
+  $("#open-file-button").on("click", function()
+  {
     // Check for the various File API support.
-    if (window.File && window.FileReader && window.FileList && window.Blob) {
+    if (window.File && window.FileReader && window.FileList && window.Blob)
+    {
       // Great success! All the File APIs are supported.
       // Open the file browser.
       $("#hidden-file-input").trigger("click");
+    }
+    else
+    {
+      logger.err("The File APIs are not fully supported in this browser.");
+    }
+  });
 
-      // Manage the file input change
-      $("#hidden-file-input").on("change", function(evt) {
-        // FileList object
-        var files = evt.target.files;
-        var file = files[0];
+  /*
+  * Manage the file input change
+  */
+  $("#hidden-file-input").change(function(evt)
+  {
+    // FileList object
+    var files = evt.target.files;
+    var valid = files.length, processed = 0;
 
-        // Only process javascript files.
-        if (file.type.match("application/javascript")) {
-          // Refresh the status bar text.
-          $("#status-bar-content").html("<span>" + file.name + "</span>");
-          env.fileName = file.name;
+    for (var i = 0; i < files.length; i++)
+    {
+      // Only process javascript files.
+      if (!files[i].type.match("application/javascript"))
+      {
+        logger.err(files[i].name + " is not a Javascript file.");
+        valid--;
+        continue;
+      }
 
-          // Read the data into the memory.
-          var reader = new FileReader();
-          reader.readAsText(file, "utf-8");
-
-          // Handle success, and errors.
-          reader.onload = function(evt) {
-            // Obtain the read file data.
-            var fileText = evt.target.result;
-
-            // Add the text to the editor.
-            env.editor.setValue(fileText);
-            env.editor.clearSelection();
-            env.editor.gotoLine(1, 0, false);
-
-            // Reset the input field value.
-            $("#hidden-file-input").val("");
-          };
-
-          reader.onerror = function(evt) {
-            if(evt.target.error.name == "NotReadableError") {
-              alert("The file could not be read.");
-            }
-          };
-
-        } else {
-          alert("You must choose a Javascript file.");
+      var stored = false;
+      for (var j = 0; j < session.data.length; j++)
+      {
+        if (files[i].name.endsWith(session.data[j].name))
+        {
+          stored = true;
+          break;
         }
+      }
+      if (stored)
+      {
+        logger.err(session.data[j].name + " is already loaded.");
+        valid--;
+        continue;
+      }
+
+      (function(file)
+      {
+        var reader = new FileReader();
+
+        reader.onload = function(evt)
+        {
+          var eSession = new EditSession(evt.target.result, "ace/mode/javascript");
+          // Store the edit session.
+          session.nextID++;
+          session.data.push(
+          {
+            id: session.nextID,
+            name: file.name,
+            editSession: eSession
+          });
+
+          updateFilePanel(session.nextID, file.name, filetab.work);
+          switchSession(session.nextID);
+        }
+
+        reader.onerror = function(evt)
+        {
+          if (evt.target.name.error === "NotReadableError")
+          {
+            logger.err(file.name + " file could not be read.");
+          }
+        }
+
+        reader.readAsText(file, "utf-8");
+      })(files[i]);
+    }
+  });
+
+  /**
+  * Modal "File name" events.
+  */
+  $("#cancel-file-name").on("click", function()
+  {
+    $("#new-file-name").val("");
+    $("#modal-info").empty();
+  });
+
+  $("#ok-file-name").on("click", function()
+  {
+    var info = $("#modal-info");
+    var fileName = $("#new-file-name").val().trim();
+    var valid = true;
+
+    info.empty();
+    var regex = /^([a-zA-Z0-9_\-]{3,}\.js)$/;
+    if (!regex.test(fileName))
+    {
+      info.append("<p>The filename must be 3 character at least and ends with '.js'.</p>");
+      valid = false;
+    }
+    if (getSessionIdbyName(fileName) != 0)
+    {
+      info.append("<p>This filename is already taken.</p>");
+      valid = false;
+    }
+
+    if (valid)
+    {
+      var eSession = new EditSession("", "ace/mode/javascript");
+      session.nextID++;
+      session.data.push(
+      {
+        id: session.nextID,
+        name: fileName,
+        editSession: eSession
       });
-    } else {
-      alert("The File APIs are not fully supported in this browser.");
+      session.activeID = session.nextID;
+
+      updateFilePanel(session.nextID, fileName, filetab.work);
+      switchSession(session.nextID);
+
+      $("#new-file-name").val("");
+      $("#new-file-modal").modal("hide");
+    }
+  });
+
+  /**
+  * Save button event.
+  */
+  $("#save-file-button").on("click", function()
+  {
+    if (session.activeID == 0)
+    {
+      logger.err("You can not save the welcome.js file.");
+    }
+    else
+    {
+      var blob = new Blob([env.editor.session.getValue()], {type: "text/javascript;charset=utf-8"});
+      saveAs(blob, getSessionNameById(session.activeID));
     }
   });
 
   /**
   * Editor setting events.
   */
-  $("#theme").on("change", function() {
+  $("#theme").on("change", function()
+  {
     env.editor.setTheme(this.value);
   });
 
-  $("#fontsize").on("change", function() {
-    env.editor.setFontSize(this.value); 
+  $("#fontsize").on("change", function()
+  {
+    env.editor.setFontSize(this.value);
   });
 
-  $("#folding").on("change", function() {
+  $("#folding").on("change", function()
+  {
     env.editor.session.setFoldStyle(this.value);
   });
 
-  $("#keybinding").on("change", function() {
+  $("#keybinding").on("change", function()
+  {
     env.editor.setKeyboardHandler(keybindings[this.value]);
   });
 
-  $("#soft_wrap").on("change", function() {
+  $("#soft_wrap").on("change", function()
+  {
     env.editor.setOption("wrap", this.value);
   });
 
-  $("#select_style").on("change", function() {
+  $("#select_style").on("change", function()
+  {
     env.editor.setOption("selectionStyle", this.checked ? "line" : "text");
   });
 
-  $("#highlight_active").on("change", function() {
+  $("#highlight_active").on("change", function()
+  {
     env.editor.setHighlightActiveLine(this.checked);
   });
 
-  $("#display_indent_guides").on("change", function() {
+  $("#display_indent_guides").on("change", function()
+  {
     env.editor.setDisplayIndentGuides(this.checked);
   });
 
-  $("#show_hidden").on("change", function() {
+  $("#show_hidden").on("change", function()
+  {
     env.editor.setShowInvisibles(this.checked);
   });
 
-  $("#show_hscroll").on("change", function() {
+  $("#show_hscroll").on("change", function()
+  {
     env.editor.setOption("hScrollBarAlwaysVisible", this.checked);
   });
 
-  $("#show_vscroll").on("change", function() {
+  $("#show_vscroll").on("change", function()
+  {
     env.editor.setOption("vScrollBarAlwaysVisible", this.checked);
   });
 
-  $("#animate_scroll").on("change", function() {
+  $("#animate_scroll").on("change", function()
+  {
     env.editor.setAnimatedScroll(this.checked);
   });
 
-  $("#show_gutter").on("change", function() {
+  $("#show_gutter").on("change", function()
+  {
     env.editor.renderer.setShowGutter(this.checked);
   });
 
-  $("#show_print_margin").on("change", function() {
+  $("#show_print_margin").on("change", function()
+  {
     env.editor.renderer.setShowPrintMargin(this.checked);
   });
 
-  $("#soft_tab").on("change", function() {
+  $("#soft_tab").on("change", function()
+  {
     env.editor.session.setUseSoftTabs(this.checked);
   });
 
-  $("#highlight_selected_word").on("change", function() {
+  $("#highlight_selected_word").on("change", function()
+  {
     env.editor.setHighlightSelectedWord(this.checked);
   });
 
-  $("#enable_behaviours").on("change", function() {
+  $("#enable_behaviours").on("change", function()
+  {
     env.editor.setBehavioursEnabled(this.checked);
   });
 
-  $("#fade_fold_widgets").on("change", function() {
+  $("#fade_fold_widgets").on("change", function()
+  {
     env.editor.setFadeFoldWidgets(this.checked);
   });
 
-  $("#read_only").on("change", function() {
-    env.editor.setReadOnly(this.checked);
-  });
-
-  $("#scrollPastEnd").on("change", function() {
+  $("#scrollPastEnd").on("change", function()
+  {
     env.editor.setOption("scrollPastEnd", this.checked);
   });
 
@@ -438,12 +853,21 @@ $(document).ready(function()
     return true;
   });
 
-  // Update the breakpoint lines after editor changes.
+  /*
+  * Update the breakpoint lines after editor or session changes.
+  */
   env.editor.session.on("change", function()
   {
     updateInvalidLines();
   });
 
+  env.editor.on("changeSession", function() {
+    updateInvalidLines();
+  });
+
+  /*
+  * Debugger action button events.
+  */
   $("#continue-stop-button").on("click", function()
   {
     if ($(this).hasClass("disabled"))
@@ -453,17 +877,17 @@ $(document).ready(function()
 
     if (env.isContActive)
     {
-      updateContinueStopButton("stop");
+      updateContinueStopButton(button.stop);
       client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_CONTINUE ]);
     }
     else
     {
-      updateContinueStopButton("continue");
+      updateContinueStopButton(button.continue);
       client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_STOP ]);
     }
   });
 
-  $("#step-button").on("click", function() 
+  $("#step-button").on("click", function()
   {
     if ($(this).hasClass("disabled"))
     {
@@ -483,34 +907,42 @@ $(document).ready(function()
     client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_NEXT ]);
   });
 
-  // Use the editor to add a breakpoint.
-  env.editor.on("guttermousedown", function(e) {
+  /*
+  * Editor mouse click, breakpoint add/delete.
+  */
+  env.editor.on("guttermousedown", function(e)
+  {
     if (client.debuggerObj)
     {
-      var target = e.domEvent.target; 
-      if (target.className.indexOf("ace_gutter-cell") == -1) {
-        return; 
-      }
-
-      if (!env.editor.isFocused()) {
+      var target = e.domEvent.target;
+      if (target.className.indexOf("ace_gutter-cell") == -1)
+      {
         return;
       }
 
-      if (e.clientX > 25 + target.getBoundingClientRect().left) {
+      if (!env.editor.isFocused())
+      {
+        return;
+      }
+
+      if (e.clientX > 25 + target.getBoundingClientRect().left)
+      {
         return;
       }
 
       var breakpoints = e.editor.session.getBreakpoints(row, 0);
       var row = e.getDocumentPosition().row;
-      var lines = client.debuggerObj.getBreakpointLines();
+      var lines = getLinesFromRawData(client.debuggerObj.getBreakpointLines());
 
-      if (lines.includes(row+1))
+      if (lines.includes(row + 1))
       {
         if(typeof breakpoints[row] === typeof undefined) {
           env.editor.session.setBreakpoint(row);
           env.breakpointIds[row] = client.debuggerObj.getNextBreakpointIndex();
-          client.debuggerObj.setBreakpoint(env.fileName + ":" + parseInt(row + 1));
-        } else {
+          client.debuggerObj.setBreakpoint(getSessionNameById(session.activeID) + ":" + parseInt(row + 1));
+        }
+        else
+        {
           client.debuggerObj.deleteBreakpoint(env.breakpointIds[row]);
           env.editor.session.clearBreakpoint(row);
 
@@ -522,6 +954,14 @@ $(document).ready(function()
     }
   });
 });
+
+/*
+ ██████ ██      ██ ███████ ███    ██ ████████
+██      ██      ██ ██      ████   ██    ██
+██      ██      ██ █████   ██ ██  ██    ██
+██      ██      ██ ██      ██  ██ ██    ██
+ ██████ ███████ ██ ███████ ██   ████    ██
+*/
 
 function DebuggerClient(ipAddr)
 {
@@ -545,6 +985,24 @@ function DebuggerClient(ipAddr)
     }
   }
 
+  function setUint32(array, offset, value)
+  {
+    if (littleEndian)
+    {
+      array[offset] = value & 0xff;
+      array[offset + 1] = (value >> 8) & 0xff;
+      array[offset + 2] = (value >> 16) & 0xff;
+      array[offset + 3] = (value >> 24) & 0xff;
+    }
+    else
+    {
+      array[offset] = (value >> 24) & 0xff;
+      array[offset + 1] = (value >> 16) & 0xff;
+      array[offset + 2] = (value >> 8) & 0xff;
+      array[offset + 3] = value & 0xff;
+    }
+  }
+
   /* Concat the two arrays. The first byte (opcode) of nextArray is ignored. */
   function concatUint8Arrays(baseArray, nextArray)
   {
@@ -563,10 +1021,10 @@ function DebuggerClient(ipAddr)
     var baseLength = baseArray.byteLength;
     var nextLength = nextArray.byteLength - 1;
 
-    var result = new Uint8Array(baseArray.byteLength + nextArray.byteLength);
-    result.set(nextArray, baseArray.byteLength - 1);
+    var result = new Uint8Array(baseLength + nextLength);
+    result.set(nextArray, baseLength - 1);
 
-    /* This set overwrites the opcode. */
+    /* This set operation overwrites the opcode. */
     result.set(baseArray);
 
     return result;
@@ -607,6 +1065,62 @@ function DebuggerClient(ipAddr)
       }
 
       result += String.fromCharCode(chr);
+    }
+
+    return result;
+  }
+
+  function stringToCesu8(string)
+  {
+    assert(string != "");
+
+    var length = string.length;
+    var byteLength = length;
+
+    for (var i = 0; i < length; i++)
+    {
+      var chr = string.charCodeAt(i);
+
+      if (chr >= 0x7ff)
+      {
+        byteLength ++;
+      }
+
+      if (chr >= 0x7f)
+      {
+        byteLength++;
+      }
+    }
+
+    var result = new Uint8Array(byteLength + 1 + 4);
+
+    result[0] = JERRY_DEBUGGER_EVAL;
+
+    setUint32(result, 1, byteLength);
+
+    var offset = 5;
+
+    for (var i = 0; i < length; i++)
+    {
+      var chr = string.charCodeAt(i);
+
+      if (chr >= 0x7ff)
+      {
+        result[offset] = 0xe0 | (chr >> 12);
+        result[offset + 1] = 0x80 | ((chr >> 6) & 0x3f);
+        result[offset + 2] = 0x80 | (chr & 0x3f);
+        offset += 3;
+      }
+      else if (chr >= 0x7f)
+      {
+        result[offset] = 0xc0 | (chr >> 6);
+        result[offset + 1] = 0x80 | (chr & 0x3f);
+      }
+      else
+      {
+        result[offset] = chr;
+        offset++;
+      }
     }
 
     return result;
@@ -675,7 +1189,7 @@ function DebuggerClient(ipAddr)
     }
   }
 
-  client.socket = new WebSocket("ws://localhost:5001/jerry-debugger");
+  client.socket = new WebSocket("ws://" + ipAddr + ":5001/jerry-debugger");
   client.socket.binaryType = 'arraybuffer';
 
   function abortConnection(message)
@@ -697,6 +1211,10 @@ function DebuggerClient(ipAddr)
       client.socket = null;
       client.debuggerObj = null;
       logger.log("Connection closed.");
+      // "Reset the editor".
+      resetPanel($("#backtrace-content"));
+      deleteBreakpointsFromEditor();
+      unhighlightCurrentLine();
       disableButtons(true);
     }
   }
@@ -836,20 +1354,7 @@ function DebuggerClient(ipAddr)
         continue;
       }
 
-      if (littleEndian)
-      {
-        message[offset] = value & 0xff;
-        message[offset + 1] = (value >> 8) & 0xff;
-        message[offset + 2] = (value >> 16) & 0xff;
-        message[offset + 3] = (value >> 24) & 0xff;
-      }
-      else
-      {
-        message[offset] = (value >> 24) & 0xff;
-        message[offset + 1] = (value >> 16) & 0xff;
-        message[offset + 2] = (value >> 8) & 0xff;
-        message[offset + 3] = value & 0xff;
-      }
+      setUint32(message, offset, value);
 
       offset += 4;
     }
@@ -1088,17 +1593,37 @@ function DebuggerClient(ipAddr)
         if (breakpoint.activeIndex >= 0)
         {
           breakpointIndex = "breakpoint:" + breakpoint.activeIndex + " ";
-          updateContinueStopButton("continue");
+          updateContinueStopButton(button.continue);
         }
 
         logger.log("Stopped at " + breakpointIndex + breakpointToString(breakpoint));
-        updateContinueStopButton("continue");
+
+        updateContinueStopButton(button.continue);
+
+        // Go the the right session.
+        if (session.data.length)
+        {
+          var sID = getSessionIdbyName(breakpoint.func.resource);
+          if (sID != session.activeID)
+          {
+            // Change the session.
+
+            switchSession(sID);
+
+            // Remove the highlite from the current session.
+            unhighlightCurrentLine();
+          }
+        }
+
+        highlightCurrentLine(breakpoint.line);
         updateInvalidLines();
+
+        // Show the backtrace on the panel.
         if (env.isBacktracePanelActive)
         {
           getbacktrace();
         }
-        highlightCurrentLine(breakpoint.line);
+
         return;
       }
 
@@ -1124,27 +1649,65 @@ function DebuggerClient(ipAddr)
           if (best_offset >= 0)
           {
             breakpoint = func.offsets[best_offset];
-            logger.log("  frame " + backtraceFrame + ": " + breakpointToString(breakpoint));
+            if(env.clBacktrace)
+            {
+              logger.log("  frame " + backtraceFrame + ": " + breakpointToString(breakpoint));
+            }
             updateBacktracePanel(backtraceFrame, breakpoint);
           }
           else if (func.name)
           {
-            logger.log("  frame " + backtraceFrame + ": " + func.name + "()");
+            if (env.clBacktrace)
+            {
+              logger.log("  frame " + backtraceFrame + ": " + func.name + "()");
+            }
             updateBacktracePanel(backtraceFrame, func.name + "()");
           }
           else
           {
-            logger.log("  frame " + backtraceFrame + ": <unknown>()");
+            if (env.clBacktrace)
+            {
+              logger.log("  frame " + backtraceFrame + ": <unknown>()");
+            }
             updateBacktracePanel(backtraceFrame, "<unknown>()");
           }
 
           ++backtraceFrame;
         }
 
+        if (env.clBacktrace)
+        {
+          env.clBacktrace = false;
+        }
+
         if (message[0] == JERRY_DEBUGGER_BACKTRACE_END)
         {
           backtraceFrame = 0;
         }
+        return;
+      }
+
+      case JERRY_DEBUGGER_EVAL_RESULT:
+      case JERRY_DEBUGGER_EVAL_RESULT_END:
+      case JERRY_DEBUGGER_EVAL_ERROR:
+      case JERRY_DEBUGGER_EVAL_ERROR_END:
+      {
+        env.evalResult = concatUint8Arrays(env.evalResult, message);
+
+        if (message[0] == JERRY_DEBUGGER_EVAL_RESULT_END)
+        {
+          logger.log(cesu8ToString(env.evalResult));
+          env.evalResult = null;
+          return;
+        }
+
+        if (message[0] == JERRY_DEBUGGER_EVAL_ERROR_END)
+        {
+          logger.err("Uncaught exception: " + cesu8ToString(env.evalResult));
+          env.evalResult = null;
+          return;
+        }
+
         return;
       }
 
@@ -1253,6 +1816,34 @@ function DebuggerClient(ipAddr)
     }
   }
 
+  this.sendEval = function(str)
+  {
+    if (str == "")
+    {
+      return;
+    }
+
+    var array = stringToCesu8(str);
+    var byteLength = array.byteLength;
+
+    if (byteLength <= maxMessageSize)
+    {
+      client.socket.send(array);
+      return;
+    }
+
+    client.socket.send(array.slice(0, maxMessageSize));
+
+    var offset = maxMessageSize - 1;
+
+    while (offset < byteLength)
+    {
+      array[offset] = JERRY_DEBUGGER_EVAL_PART;
+      client.socket.send(array.slice(offset, offset + maxMessageSize));
+      offset += maxMessageSize - 1;
+    }
+  }
+
   this.dump = function()
   {
     for (var i in functions)
@@ -1299,7 +1890,11 @@ function DebuggerClient(ipAddr)
       var func = functions[i];
       for (var j in func.lines)
       {
-        result.push(parseInt(j));
+        result.push(
+          {
+            line: parseInt(j),
+            resource: func.resource
+          });
       }
     }
     return result;
@@ -1337,9 +1932,11 @@ function debuggerCommand(event)
               "   break|b file_name:line|function_name - set breakpoint\n" +
               "   delete|d id - delete breakpoint\n" +
               "   list - list breakpoints\n" +
+              "   stop - stop execution\n" +
               "   continue|c - continue execution\n" +
               "   step|s - step-in execution\n" +
               "   next|n - connect to server\n" +
+              "   eval|e - evaluate expression\n" +
               "   backtrace|bt [max-depth] - get backtrace\n" +
               "   dump - dump all breakpoint data");
 
@@ -1381,42 +1978,48 @@ function debuggerCommand(event)
   {
     case "b":
     case "break":
-      updateContinueStopButton("stop");
+      updateContinueStopButton(button.stop);
       client.debuggerObj.setBreakpoint(args[2]);
       break;
 
     case "d":
     case "delete":
-      updateContinueStopButton("stop");
+      updateContinueStopButton(button.stop);
       client.debuggerObj.deleteBreakpoint(args[2]);
       break;
 
     case "stop":
-      updateContinueStopButton("stop");
+      updateContinueStopButton(button.stop);
       client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_STOP ]);
       break;
 
     case "c":
     case "continue":
-      updateContinueStopButton("continue");
+      updateContinueStopButton(button.stop);
       client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_CONTINUE ]);
       break;
 
     case "s":
     case "step":
-      updateContinueStopButton("stop");
+      updateContinueStopButton(button.stop);
       client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_STEP ]);
       break;
 
     case "n":
     case "next":
-      updateContinueStopButton("stop");
+      updateContinueStopButton(button.stop);
       client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_NEXT ]);
+      break;
+
+    case "e":
+    case "eval":
+      client.debuggerObj.sendEval(args[2]);
       break;
 
     case "bt":
     case "backtrace":
-      updateContinueStopButton("stop");
+      updateContinueStopButton(button.stop);
+      env.clBacktrace = true;
       max_depth = 0;
 
       if (args[2])
@@ -1447,6 +2050,7 @@ function debuggerCommand(event)
 
     default:
       logger.err("Unknown command: " + args[1]);
+      break;
   }
 
   env.commandLine.val("");
