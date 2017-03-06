@@ -67,9 +67,9 @@
         <!-- Hidden element -->
         <input class="hidden" id="hidden-file-input" type="file" multiple />
 
-        <div class="btn btn-default" id="open-file-button" title="Open files from the local drive."><i class="fa fa-folder" aria-hidden="true"></i> Open...</div>
-        <div class="btn btn-default" id="new-file-button" title="Create a new a session." data-toggle="modal" data-target="#new-file-modal"><i class="fa fa-file" aria-hidden="true"></i> New</div>
-        <div class="btn btn-default" id="save-file-button" title="Save the currently selected session."><i class="fa fa-floppy-o" aria-hidden="true"></i> Save</div>
+        <div class="btn btn-warning" id="open-file-button" title="Open files from the local drive."><i class="fa fa-folder" aria-hidden="true"></i> Open...</div>
+        <div class="btn btn-warning" id="new-file-button" title="Create a new a session." data-toggle="modal" data-target="#new-file-modal"><i class="fa fa-file" aria-hidden="true"></i> New</div>
+        <div class="btn btn-warning" id="save-file-button" title="Save the currently selected session."><i class="fa fa-floppy-o" aria-hidden="true"></i> Save</div>
 
         <!-- Modal: the new file name. -->
         <div id="new-file-modal" class="modal fade" role="dialog">
@@ -91,16 +91,18 @@
           </div>
         </div>
 
-        <div class="btn btn-default" id="editor-settings-button"><i class="fa fa-cog" aria-hidden="true"></i> Settings</div>
+        <div class="btn btn-warning" id="editor-settings-button"><i class="fa fa-cog" aria-hidden="true"></i> Settings</div>
       </dir>
       <div class="col-md-4 pure content-center debugger-buttons">
-        <div class="btn btn-default disabled" id="continue-stop-button" title="Continue/Stop"><i class="fa fa-play" aria-hidden="true"></i></div>
-        <div class="btn btn-default disabled" id="step-button" title="Step-in"><i class="fa fa-step-forward" aria-hidden="true"></i></div>
-        <div class="btn btn-default disabled" id="next-button" title="Next"><i class="fa fa-arrow-right" aria-hidden="true"></i></div>
+        <div class="btn btn-warning disabled" id="continue-stop-button" title="Continue/Stop"><i class="fa fa-play" aria-hidden="true"></i></div>
+        <div class="btn btn-warning disabled" id="step-button" title="Step-in"><i class="fa fa-step-forward" aria-hidden="true"></i></div>
+        <div class="btn btn-warning disabled" id="next-button" title="Next"><i class="fa fa-arrow-right" aria-hidden="true"></i></div>
       </div>
       <div class="col-md-4 pure content-right">
-        <div class="btn btn-default" id="connect-to-button"><i class="fa fa-plug" aria-hidden="true"></i> Connect to</div>
-        <input type="text" name="host-address" id="host-address" class="form-control" placeholder="address" title="The host address." value="localhost">
+        <div class="btn btn-warning" id="connect-to-button"><i class="fa fa-plug" aria-hidden="true"></i> Connect to</div>
+        <input type="text" name="host-ip" id="host-ip" class="form-control" placeholder="address" title="The host ip address." value="localhost">
+        <span>:</span>
+        <input type="number" name="host-port" id="host-port" class="form-control" placeholder="port" title="The host port number." min=0 value="5001">
       </div>
     </div>
 

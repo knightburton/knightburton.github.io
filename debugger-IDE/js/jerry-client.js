@@ -4,18 +4,20 @@ var JERRY_DEBUGGER_BYTE_CODE_CP = 3;
 var JERRY_DEBUGGER_PARSE_FUNCTION = 4;
 var JERRY_DEBUGGER_BREAKPOINT_LIST = 5;
 var JERRY_DEBUGGER_BREAKPOINT_OFFSET_LIST = 6;
-var JERRY_DEBUGGER_RESOURCE_NAME = 7;
-var JERRY_DEBUGGER_RESOURCE_NAME_END = 8;
-var JERRY_DEBUGGER_FUNCTION_NAME = 9;
-var JERRY_DEBUGGER_FUNCTION_NAME_END = 10;
-var JERRY_DEBUGGER_RELEASE_BYTE_CODE_CP = 11;
-var JERRY_DEBUGGER_BREAKPOINT_HIT = 12;
-var JERRY_DEBUGGER_BACKTRACE = 13;
-var JERRY_DEBUGGER_BACKTRACE_END = 14;
-var JERRY_DEBUGGER_EVAL_RESULT = 15;
-var JERRY_DEBUGGER_EVAL_RESULT_END = 16;
-var JERRY_DEBUGGER_EVAL_ERROR = 17;
-var JERRY_DEBUGGER_EVAL_ERROR_END = 18;
+var JERRY_DEBUGGER_SOURCE_CODE = 7;
+var JERRY_DEBUGGER_SOURCE_CODE_END = 8;
+var JERRY_DEBUGGER_SOURCE_CODE_NAME = 9;
+var JERRY_DEBUGGER_SOURCE_CODE_NAME_END = 10;
+var JERRY_DEBUGGER_FUNCTION_NAME = 11;
+var JERRY_DEBUGGER_FUNCTION_NAME_END = 12;
+var JERRY_DEBUGGER_RELEASE_BYTE_CODE_CP = 13;
+var JERRY_DEBUGGER_BREAKPOINT_HIT = 14;
+var JERRY_DEBUGGER_BACKTRACE = 15;
+var JERRY_DEBUGGER_BACKTRACE_END = 16;
+var JERRY_DEBUGGER_EVAL_RESULT = 17;
+var JERRY_DEBUGGER_EVAL_RESULT_END = 18;
+var JERRY_DEBUGGER_EVAL_ERROR = 19;
+var JERRY_DEBUGGER_EVAL_ERROR_END = 20;
 
 var JERRY_DEBUGGER_FREE_BYTE_CODE_CP = 1;
 var JERRY_DEBUGGER_UPDATE_BREAKPOINT = 2;
@@ -37,6 +39,7 @@ var env = {
   EditSession : null,
   evalResult : null,
   breakpointIds : [],
+  lastBreakpointLine : null,
   numberOfHiddenPanel : 0,
   isBacktracePanelActive : true,
   isContActive : true,
@@ -73,6 +76,11 @@ var keybindings = {
   custom : null, // Create own bindings here.
 };
 
+function hitUpdate()
+{
+
+}
+
 /*
 ██       ██████   ██████   ██████  ███████ ██████
 ██      ██    ██ ██       ██       ██      ██   ██
@@ -96,8 +104,15 @@ var Logger = function(panelId)
     scrollDownToBottom(panel);
   }
 
+  function warn(str)
+  {
+    panel.append($("<span class='warning data'>" + str + "</span>"));
+    scrollDownToBottom(panel);
+  }
+
   this.log = log;
   this.err = err;
+  this.warn = warn;
 };
 
 var logger = new Logger("console-panel");
@@ -119,7 +134,7 @@ function disableButtons(disable)
     $("#host-address").removeAttr("disabled");
 
     // Disable the debugger buttons.
-    $(".debugger-buttons .btn-default").addClass("disabled");
+    $(".debugger-buttons .btn-warning").addClass("disabled");
   }
   else
   {
@@ -128,7 +143,7 @@ function disableButtons(disable)
     $("#host-address").attr("disabled", true);
 
     // Enable the debugger buttons.
-    $(".debugger-buttons .btn-default").removeClass("disabled");
+    $(".debugger-buttons .btn-warning").removeClass("disabled");
   }
 }
 
@@ -163,9 +178,10 @@ function getLinesFromRawData(raw)
 {
   var lines = [];
   var sessionName = getSessionNameById(session.activeID);
+
   for (var i in raw)
   {
-    if (raw[i].resource.endsWith(sessionName))
+    if (raw[i].sourceName.endsWith(sessionName))
     {
       lines.push(raw[i].line);
     }
@@ -224,7 +240,7 @@ function getbacktrace()
 
 function highlightCurrentLine(lineNumber) {
   lineNumber--;
-  unhighlightCurrentLine();
+  unhighlightLine();
   var Range = ace.require("ace/range").Range;
   marker.executed = env.editor.session.addMarker(new Range(lineNumber, 0, lineNumber, 1), "execute-marker", "fullLine");
 
@@ -232,7 +248,7 @@ function highlightCurrentLine(lineNumber) {
   marker.lastMarked = lineNumber;
 }
 
-function unhighlightCurrentLine(){
+function unhighlightLine(){
   env.editor.getSession().removeMarker(marker.executed);
   env.editor.session.removeGutterDecoration(marker.lastMarked, "execute-gutter-cell-marker");
 }
@@ -257,7 +273,7 @@ function resetPanel(element)
 
 function updateBacktracePanel(frame, info)
 {
-  var resource = info.func.resource || info;
+  var sourceName = info.func.sourceName || info;
   var line = info.line || "-";
   var func = info.func.name || "-";
 
@@ -265,7 +281,7 @@ function updateBacktracePanel(frame, info)
   panel.append(
     "<div class='list-row'>" +
       "<div class='list-col list-col-0'>" + frame + "</div>" +
-      "<div class='list-col list-col-1'>" + resource + "</div>" +
+      "<div class='list-col list-col-1'>" + sourceName + "</div>" +
       "<div class='list-col list-col-2'>" + line + "</div>" +
       "<div class='list-col list-col-3'>" + func + "</div>" +
     "</div>"
@@ -282,14 +298,14 @@ function updateBreakpointsPanel()
 
   for (var i in activeBreakpoints)
   {
-    var resource = activeBreakpoints[i].func.resource || "-";
+    var sourceName = activeBreakpoints[i].func.sourceName || "-";
     var line = activeBreakpoints[i].line || "-";
     var id = activeBreakpoints[i].activeIndex || "-";
     var func = activeBreakpoints[i].func.name || "-";
 
     panel.append(
       "<div class='list-row' id='br-" + line + "-" + id + "'>" +
-        "<div class='list-col list-col-0'>" + resource + "</div>" +
+        "<div class='list-col list-col-0'>" + sourceName + "</div>" +
         "<div class='list-col list-col-1'>" + line + "</div>" +
         "<div class='list-col list-col-2'>" + id + "</div>" +
         "<div class='list-col list-col-3'>" + func + "</div>" +
@@ -325,6 +341,7 @@ function setWelcomeSession()
     session.data.push(
     {
       id: 0,
+      saved : true,
       name: "welcome.js",
       editSession: eSession
     });
@@ -360,7 +377,7 @@ function getSessionIdbyName(name)
     }
   }
 
-  return 0;
+  return null;
 }
 
 function getSessionById(id)
@@ -428,6 +445,24 @@ function getSessionNeighbourById(id)
   }
 
   return 0;
+}
+
+function sourceCheck(name, source)
+{
+  var sID = getSessionIdbyName(name);
+  if (sID === null)
+  {
+    logger.warn("Warning! The " + name + " is not loaded into the editor.\n");
+    return false;
+  }
+
+  var s = getSessionById(sID);
+  if (source.localeCompare(s.getValue()) != 0)
+  {
+    logger.warn("Warning! The debugger source does not match the editor source! ");
+    return false;
+  }
+  return true;
 }
 
 /*
@@ -602,9 +637,10 @@ $(document).ready(function()
           session.nextID++;
           session.data.push(
           {
-            id: session.nextID,
-            name: file.name,
-            editSession: eSession
+            id : session.nextID,
+            saved : true,
+            name : file.name,
+            editSession : eSession
           });
 
           updateFilePanel(session.nextID, file.name, filetab.work);
@@ -646,7 +682,7 @@ $(document).ready(function()
       info.append("<p>The filename must be 3 character at least and ends with '.js'.</p>");
       valid = false;
     }
-    if (getSessionIdbyName(fileName) != 0)
+    if (getSessionIdbyName(fileName) != null)
     {
       info.append("<p>This filename is already taken.</p>");
       valid = false;
@@ -659,6 +695,7 @@ $(document).ready(function()
       session.data.push(
       {
         id: session.nextID,
+        saved : true,
         name: fileName,
         editSession: eSession
       });
@@ -685,6 +722,7 @@ $(document).ready(function()
     {
       var blob = new Blob([env.editor.session.getValue()], {type: "text/javascript;charset=utf-8"});
       saveAs(blob, getSessionNameById(session.activeID));
+      $("#tab-" + session.activeID).removeClass("unsaved");
     }
   });
 
@@ -841,14 +879,22 @@ $(document).ready(function()
       return true;
     }
 
-    if ($("#host-address").val() == "")
+    if ($("#host-ip").val() == "")
     {
       logger.err("IP address expected.");
       return true;
     }
 
-    logger.log("Connect to: " + $("#host-address").val());
-    client.debuggerObj = new DebuggerClient($("#host-address").val());
+    if ($("#host-port").val() == "")
+    {
+      logger.err("Adress port expected.");
+      return true;
+    }
+
+    var address = $("#host-ip").val() + ":" + $("#host-port").val();
+
+    logger.log("Connect to: " + address);
+    client.debuggerObj = new DebuggerClient(address);
 
     return true;
   });
@@ -856,13 +902,25 @@ $(document).ready(function()
   /*
   * Update the breakpoint lines after editor or session changes.
   */
-  env.editor.session.on("change", function()
+  env.editor.on("change", function(e)
   {
-    updateInvalidLines();
+    unhighlightLine();
+    $("#tab-" + session.activeID).addClass("unsaved");
+    if (client.debuggerObj)
+    {
+      updateInvalidLines();
+      highlightCurrentLine(env.lastBreakpointLine);
+    }
   });
 
-  env.editor.on("changeSession", function() {
-    updateInvalidLines();
+  env.editor.on("changeSession", function(e)
+  {
+    unhighlightLine();
+    if (client.debuggerObj)
+    {
+      updateInvalidLines();
+      highlightCurrentLine(env.lastBreakpointLine);
+    }
   });
 
   /*
@@ -963,9 +1021,9 @@ $(document).ready(function()
  ██████ ███████ ██ ███████ ██   ████    ██
 */
 
-function DebuggerClient(ipAddr)
+function DebuggerClient(address)
 {
-  logger.log("ws://" + ipAddr + ":5001/jerry-debugger");
+  logger.log("ws://" + address + "/jerry-debugger");
 
   var parseObj = null;
   var maxMessageSize = 0;
@@ -973,9 +1031,11 @@ function DebuggerClient(ipAddr)
   var littleEndian = true;
   var functions = { };
   var lineList = new Multimap();
+  var lastBreakpointHit = null;
   var activeBreakpoints = { };
   var nextBreakpointIndex = 1;
   var backtraceFrame = 0;
+  var evalResult = null;
 
   function assert(expr)
   {
@@ -1130,7 +1190,7 @@ function DebuggerClient(ipAddr)
   {
     var name = breakpoint.func.name;
 
-    var result = breakpoint.func.resource;
+    var result = breakpoint.func.sourceName;
 
     if (!result)
     {
@@ -1189,7 +1249,7 @@ function DebuggerClient(ipAddr)
     }
   }
 
-  client.socket = new WebSocket("ws://" + ipAddr + ":5001/jerry-debugger");
+  client.socket = new WebSocket("ws://" + address + "/jerry-debugger");
   client.socket.binaryType = 'arraybuffer';
 
   function abortConnection(message)
@@ -1214,7 +1274,7 @@ function DebuggerClient(ipAddr)
       // "Reset the editor".
       resetPanel($("#backtrace-content"));
       deleteBreakpointsFromEditor();
-      unhighlightCurrentLine();
+      unhighlightLine();
       disableButtons(true);
     }
   }
@@ -1366,9 +1426,12 @@ function DebuggerClient(ipAddr)
 
   function ParseSource()
   {
-    var resourceName = null;
+    var source = "";
+    var sourceData = null;
+    var sourceName = "";
+    var sourceNameData = null;
     var functionName = null;
-    var stack = [ { name: '', lines: [], offsets: [] } ];
+    var stack = [ { name: "", source: "", lines: [], offsets: [] } ];
     var newFunctions = [ ];
 
     this.receive = function(message)
@@ -1382,19 +1445,26 @@ function DebuggerClient(ipAddr)
           return;
         }
 
-        case JERRY_DEBUGGER_RESOURCE_NAME:
-        case JERRY_DEBUGGER_RESOURCE_NAME_END:
+        case JERRY_DEBUGGER_SOURCE_CODE:
+        case JERRY_DEBUGGER_SOURCE_CODE_END:
         {
-          if ((typeof resourceName) == "string")
+          sourceData = concatUint8Arrays(sourceData, message);
+
+          if (message[0] == JERRY_DEBUGGER_SOURCE_CODE_END)
           {
-            abortConnection("unexpected message.");
+            source = cesu8ToString(sourceData);
           }
+          return;
+        }
 
-          resourceName = concatUint8Arrays(resourceName, message);
+        case JERRY_DEBUGGER_SOURCE_CODE_NAME:
+        case JERRY_DEBUGGER_SOURCE_CODE_NAME_END:
+        {
+          sourceNameData = concatUint8Arrays(sourceNameData, message);
 
-          if (message[0] == JERRY_DEBUGGER_RESOURCE_NAME_END)
+          if (message[0] == JERRY_DEBUGGER_SOURCE_CODE_NAME_END)
           {
-            resourceName = cesu8ToString(resourceName);
+            sourceName = cesu8ToString(sourceNameData);
           }
           return;
         }
@@ -1408,16 +1478,11 @@ function DebuggerClient(ipAddr)
 
         case JERRY_DEBUGGER_PARSE_FUNCTION:
         {
-          if (resourceName == null)
-          {
-            resourceName = "";
-          }
-          else if ((typeof resourceName) != "string")
-          {
-            abortConnection("unexpected message.");
-          }
-
-          stack.push({ name: cesu8ToString(functionName), resource: resourceName, lines: [], offsets: [] });
+          stack.push({ name: cesu8ToString(functionName),
+                       source: source,
+                       sourceName: sourceName,
+                       lines: [],
+                       offsets: [] });
           functionName = null;
           return;
         }
@@ -1476,7 +1541,8 @@ function DebuggerClient(ipAddr)
             return;
           }
 
-          func.resource = resourceName;
+          func.source = source;
+          func.sourceName = sourceName;
           break;
         }
 
@@ -1545,8 +1611,10 @@ function DebuggerClient(ipAddr)
       case JERRY_DEBUGGER_BYTE_CODE_CP:
       case JERRY_DEBUGGER_PARSE_FUNCTION:
       case JERRY_DEBUGGER_BREAKPOINT_LIST:
-      case JERRY_DEBUGGER_RESOURCE_NAME:
-      case JERRY_DEBUGGER_RESOURCE_NAME_END:
+      case JERRY_DEBUGGER_SOURCE_CODE:
+      case JERRY_DEBUGGER_SOURCE_CODE_END:
+      case JERRY_DEBUGGER_SOURCE_CODE_NAME:
+      case JERRY_DEBUGGER_SOURCE_CODE_NAME_END:
       case JERRY_DEBUGGER_FUNCTION_NAME:
       case JERRY_DEBUGGER_FUNCTION_NAME_END:
       {
@@ -1588,6 +1656,8 @@ function DebuggerClient(ipAddr)
 
         breakpoint = functions[breakpoint[0]].offsets[breakpoint[1]];
 
+        lastBreakpointHit = breakpoint;
+
         breakpointIndex = "";
 
         if (breakpoint.activeIndex >= 0)
@@ -1598,20 +1668,24 @@ function DebuggerClient(ipAddr)
 
         logger.log("Stopped at " + breakpointIndex + breakpointToString(breakpoint));
 
+        env.lastBreakpointLine = breakpoint.line;
+
         updateContinueStopButton(button.continue);
+
+        sourceCheck(breakpoint.func.sourceName, breakpoint.func.source);
 
         // Go the the right session.
         if (session.data.length)
         {
-          var sID = getSessionIdbyName(breakpoint.func.resource);
-          if (sID != session.activeID)
+          var sID = getSessionIdbyName(breakpoint.func.sourceName);
+          if (sID != null && sID != session.activeID)
           {
-            // Change the session.
+            // Remove the highlite from the current session.
+            unhighlightLine();
 
+            // Change the session.
             switchSession(sID);
 
-            // Remove the highlite from the current session.
-            unhighlightCurrentLine();
           }
         }
 
@@ -1750,11 +1824,11 @@ function DebuggerClient(ipAddr)
       for (var i = 0; i < functionList.length; ++i)
       {
         var func = functionList[i];
-        var resource = func.resource;
+        var sourceName = func.sourceName;
 
-        if (resource == line[1]
-            || resource.endsWith("/" + line[1])
-            || resource.endsWith("\\" + line[1]))
+        if (sourceName == line[1]
+            || sourceName.endsWith("/" + line[1])
+            || sourceName.endsWith("\\" + line[1]))
         {
           insertBreakpoint(func.lines[line[2]]);
         }
@@ -1778,7 +1852,23 @@ function DebuggerClient(ipAddr)
   {
     breakpoint = activeBreakpoints[index];
 
-    if (!breakpoint)
+    if (index == "all")
+    {
+      var found = false;
+
+      for (var i in activeBreakpoints)
+      {
+        delete activeBreakpoints[i];
+        found = true;
+      }
+
+      if (!found)
+      {
+        logger.log("No active breakpoints.")
+      }
+    }
+
+    else if (!breakpoint)
     {
       logger.err("No breakpoint found with index " + index);
       return;
@@ -1844,19 +1934,27 @@ function DebuggerClient(ipAddr)
     }
   }
 
+  this.printSource = function()
+  {
+    if (lastBreakpointHit)
+    {
+      logger.log(lastBreakpointHit.func.source);
+    }
+  }
+
   this.dump = function()
   {
     for (var i in functions)
     {
       var func = functions[i];
-      var resource = func.resource;
+      var sourceName = func.sourceName;
 
-      if (resource == '')
+      if (!sourceName)
       {
-        resource = "<unknown>";
+        sourceName = "<unknown>";
       }
 
-      logger.log("Function 0x" + Number(i).toString(16) + " '" + func.name + "' at " + resource + ":" + func.firstLine);
+      logger.log("Function 0x" + Number(i).toString(16) + " '" + func.name + "' at " + sourceName + ":" + func.firstLine);
 
       for (var j in func.lines)
       {
@@ -1893,7 +1991,7 @@ function DebuggerClient(ipAddr)
         result.push(
           {
             line: parseInt(j),
-            resource: func.resource
+            sourceName: func.sourceName
           });
       }
     }
@@ -1928,9 +2026,9 @@ function debuggerCommand(event)
   if (args[1] == "help")
   {
     logger.log("Debugger commands:\n" +
-              "   connect IP - connect to server\n" +
-              "   break|b file_name:line|function_name - set breakpoint\n" +
-              "   delete|d id - delete breakpoint\n" +
+              "   connect <IP adress:port> - connect to server (default is localhost:5001)\n" +
+              "   break|b <file_name:line>|<function_name> - set breakpoint\n" +
+              "   delete|d <id> - delete breakpoint\n" +
               "   list - list breakpoints\n" +
               "   stop - stop execution\n" +
               "   continue|c - continue execution\n" +
@@ -1938,6 +2036,7 @@ function debuggerCommand(event)
               "   next|n - connect to server\n" +
               "   eval|e - evaluate expression\n" +
               "   backtrace|bt [max-depth] - get backtrace\n" +
+              "   src - print current source code\n" +
               "   dump - dump all breakpoint data");
 
     env.commandLine.val('');
@@ -1952,15 +2051,26 @@ function debuggerCommand(event)
       return true;
     }
 
-    if (args[2] == "")
+    var ipAddr = args[2];
+    var PORT = "5001";
+
+    if (ipAddr == "")
     {
-      logger.err("IP address expected");
-      return true;
+      ipAddr = "localhost";
     }
 
-    logger.log("Connect to: " + args[2]);
+    if (ipAddr.match(/.*:\d/))
+    {
+      var fields = ipAddr.split(":");
+      ipAddr = fields[0];
+      PORT = fields[1];
+    }
 
-    client.debuggerObj = new DebuggerClient(args[2]);
+    var address = ipAddr + ":" + PORT;
+
+    logger.log("Connect to: " + address);
+
+    client.debuggerObj = new DebuggerClient(address);
 
     env.commandLine.val('');
     return true;
@@ -2042,6 +2152,10 @@ function debuggerCommand(event)
 
     case "list":
       client.debuggerObj.listBreakpoints();
+      break;
+
+    case "list":
+      debuggerObj.listBreakpoints();
       break;
 
     case "dump":
