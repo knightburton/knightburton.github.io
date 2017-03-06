@@ -447,6 +447,12 @@ body {
   webkit-tap-highlight-color: #222222;
 }
 
+#services-img div img {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+
 #profile-image {
   float: left;
   margin-right: 15px;
@@ -586,7 +592,7 @@ body {
   animation: blinker 1s linear infinite;
 }*/
 
-@keyframes blinker {  
+@keyframes blinker {
   50% {
     opacity: 0;
   }
