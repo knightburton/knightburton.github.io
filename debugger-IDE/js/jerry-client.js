@@ -2026,9 +2026,9 @@ function debuggerCommand(event)
   if (args[1] == "help")
   {
     logger.log("Debugger commands:\n" +
-              "   connect <IP adress:port> - connect to server (default is localhost:5001)\n" +
-              "   break|b <file_name:line>|<function_name> - set breakpoint\n" +
-              "   delete|d <id> - delete breakpoint\n" +
+              "   connect &lt;IP adress:port&gt; - connect to server (default is localhost:5001)\n" +
+              "   break|b &lt;file_name:line&gt;|&lt;function_name&gt; - set breakpoint\n" +
+              "   delete|d &lt;id&gt; - delete breakpoint\n" +
               "   list - list breakpoints\n" +
               "   stop - stop execution\n" +
               "   continue|c - continue execution\n" +
