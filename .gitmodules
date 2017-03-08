@@ -4,3 +4,6 @@
 [submodule "Colors"]
 	path = Colors
 	url = https://github.com/knightburton/Colors
+[submodule "debugger-IDE"]
+	path = debugger-IDE
+	url = https://github.com/knightburton/debugger-IDE
