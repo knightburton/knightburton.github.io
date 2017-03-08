@@ -267,6 +267,10 @@
               <label for="consolePanelSwitch">Console panel</label>
               <input type="checkbox" id="console-PanelSwitch" class="panel-switch" checked>
             </div>
+            <div class="control-item">
+              <label for="evalPanelSwitch">Eval panel</label>
+              <input type="checkbox" id="eval-PanelSwitch" class="panel-switch">
+            </div>
           </div>
           <span>Debugger</span>
           <div class="control-panel">
@@ -320,17 +324,29 @@
           </div>
         </div>
 
-        <!-- Console -->
+        <!-- Console log-->
         <div class="row" id="console-wrapper">
           <div class="col-md-12">
             <div class="single-panel-title">
-              <span>Console</span>
+              <span>Console log</span>
             </div>
             <div class="single-panel console">
               <div id="console-panel" class="single-panel-content"></div>
             </div>
+          </div>
+        </div>
+
+        <!-- Eval -->
+        <div class="row" id="eval-wrapper">
+          <div class="col-md-12">
+            <div class="single-panel-title">
+              <span>Eval</span>
+            </div>
+            <div class="single-panel eval">
+              <div id="eval-panel" class="single-panel-content"></div>
+            </div>
             <div>
-              <input type="text" class="form-control" id="command" onkeypress="debuggerCommand(event); return true;" placeholder="Command line. Getting help: type 'help'">
+              <input type="text" class="form-control" id="eval-input" onkeypress="evalCommand(event); return true;" placeholder="eval input">
             </div>
           </div>
         </div>
@@ -367,7 +383,7 @@
   <script src="src/mode-javascript.js" type="text/javascript" charset="utf-8"></script>
 
   <!-- FileSaver.js : https://github.com/eligrey/FileSaver.js -->
-  <script src="js/FileSaver.js/FileSaver.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/FileSaver.min.js" type="text/javascript" charset="utf-8"></script>
 
   <!-- Client script -->
   <script src="js/jerry-client.js" type="text/javascript" charset="utf-8"></script>

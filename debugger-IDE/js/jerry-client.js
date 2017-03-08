@@ -39,11 +39,11 @@ var env = {
   EditSession : null,
   evalResult : null,
   breakpointIds : [],
-  lastBreakpointLine : null,
+  lastBreakpoint : null,
   numberOfHiddenPanel : 0,
   isBacktracePanelActive : true,
   isContActive : true,
-  commandLine : $("#command"),
+  evalInput : $("#eval-input"),
   clBacktrace : false,
 };
 
@@ -75,11 +75,6 @@ var keybindings = {
   emacs : "ace/keyboard/emacs",
   custom : null, // Create own bindings here.
 };
-
-function hitUpdate()
-{
-
-}
 
 /*
 ██       ██████   ██████   ██████  ███████ ██████
@@ -116,6 +111,7 @@ var Logger = function(panelId)
 };
 
 var logger = new Logger("console-panel");
+var evalLogger = new Logger("eval-panel");
 
 /*
 ██████  ██    ██ ████████ ████████  ██████  ███    ██ ███████
@@ -354,6 +350,26 @@ function setWelcomeSession()
   env.editor.setReadOnly(true);
 }
 
+function createNewSession(name, data, tab, saved)
+{
+  var saved = saved || true;
+  var tab = tab || filetab.work;
+
+  var eSession = new EditSession(data, "ace/mode/javascript");
+  // Store the edit session.
+  session.nextID++;
+  session.data.push(
+  {
+    id : session.nextID,
+    saved : saved,
+    name : name,
+    editSession : eSession
+  });
+
+  updateFilePanel(session.nextID, name, tab);
+  switchSession(session.nextID);
+}
+
 function getSessionNameById(id)
 {
   for (var i in session.data)
@@ -415,6 +431,14 @@ function switchSession(id)
   session.activeID = id;
   env.editor.setSession(getSessionById(id));
 
+  if (client.debuggerObj &&
+      env.lastBreakpoint != null &&
+      env.lastBreakpoint.func.sourceName.endsWith(getSessionNameById(id))
+      )
+  {
+    highlightCurrentLine(env.lastBreakpoint.line);
+  }
+
   // Disable the read only mode from the editor.
   if (env.editor.getReadOnly())
   {
@@ -447,6 +471,40 @@ function getSessionNeighbourById(id)
   return 0;
 }
 
+function sessionNameCheck(name, log)
+{
+  if (getSessionIdbyName(name) === null)
+  {
+    if (log)
+    {
+      logger.warn("Warning! The " + name + " is not loaded into the editor.\n");
+    }
+
+    return false;
+  }
+
+  return true;
+}
+
+function sessionSourceCheck(source, log)
+{
+  for (var i in session.data)
+  {
+    if (source.localeCompare(session.data[i].editSession.getValue()) == 0)
+    {
+      return true;
+    }
+  }
+
+  if (log)
+  {
+    logger.warn("Warning! The source in the current session is invalid!");
+  }
+
+  return false;
+}
+
+// sourceCheck
 function sourceCheck(name, source)
 {
   var sID = getSessionIdbyName(name);
@@ -632,19 +690,7 @@ $(document).ready(function()
 
         reader.onload = function(evt)
         {
-          var eSession = new EditSession(evt.target.result, "ace/mode/javascript");
-          // Store the edit session.
-          session.nextID++;
-          session.data.push(
-          {
-            id : session.nextID,
-            saved : true,
-            name : file.name,
-            editSession : eSession
-          });
-
-          updateFilePanel(session.nextID, file.name, filetab.work);
-          switchSession(session.nextID);
+          createNewSession(file.name, evt.target.result, filetab.work, true);
         }
 
         reader.onerror = function(evt)
@@ -661,7 +707,7 @@ $(document).ready(function()
   });
 
   /**
-  * Modal "File name" events.
+  * Modal "new File name" events.
   */
   $("#cancel-file-name").on("click", function()
   {
@@ -690,19 +736,7 @@ $(document).ready(function()
 
     if (valid)
     {
-      var eSession = new EditSession("", "ace/mode/javascript");
-      session.nextID++;
-      session.data.push(
-      {
-        id: session.nextID,
-        saved : true,
-        name: fileName,
-        editSession: eSession
-      });
-      session.activeID = session.nextID;
-
-      updateFilePanel(session.nextID, fileName, filetab.work);
-      switchSession(session.nextID);
+      createNewSession(fileName, "", filetab.work, false);
 
       $("#new-file-name").val("");
       $("#new-file-modal").modal("hide");
@@ -904,22 +938,18 @@ $(document).ready(function()
   */
   env.editor.on("change", function(e)
   {
-    unhighlightLine();
     $("#tab-" + session.activeID).addClass("unsaved");
     if (client.debuggerObj)
     {
       updateInvalidLines();
-      highlightCurrentLine(env.lastBreakpointLine);
     }
   });
 
   env.editor.on("changeSession", function(e)
   {
-    unhighlightLine();
     if (client.debuggerObj)
     {
       updateInvalidLines();
-      highlightCurrentLine(env.lastBreakpointLine);
     }
   });
 
@@ -1543,6 +1573,11 @@ function DebuggerClient(address)
 
           func.source = source;
           func.sourceName = sourceName;
+          if (sourceName === "")
+          {
+            console.log("New anonymus file.");
+            createNewSession("unknown.js", source, filetab.work, false);
+          }
           break;
         }
 
@@ -1663,34 +1698,36 @@ function DebuggerClient(address)
         if (breakpoint.activeIndex >= 0)
         {
           breakpointIndex = "breakpoint:" + breakpoint.activeIndex + " ";
-          updateContinueStopButton(button.continue);
         }
 
         logger.log("Stopped at " + breakpointIndex + breakpointToString(breakpoint));
 
-        env.lastBreakpointLine = breakpoint.line;
+        env.lastBreakpoint = breakpoint;
 
         updateContinueStopButton(button.continue);
 
-        sourceCheck(breakpoint.func.sourceName, breakpoint.func.source);
-
-        // Go the the right session.
-        if (session.data.length)
+        if (sessionNameCheck(breakpoint.func.sourceName, true))
         {
-          var sID = getSessionIdbyName(breakpoint.func.sourceName);
-          if (sID != null && sID != session.activeID)
-          {
-            // Remove the highlite from the current session.
-            unhighlightLine();
-
-            // Change the session.
-            switchSession(sID);
-
-          }
+          sessionSourceCheck(breakpoint.func.source, true);
         }
 
-        highlightCurrentLine(breakpoint.line);
-        updateInvalidLines();
+        // Go the the right session.
+        var sID = getSessionIdbyName(breakpoint.func.sourceName);
+        if (sID != null && sID != session.activeID)
+        {
+          // Remove the highlite from the current session.
+          unhighlightLine();
+
+          // Change the session.
+          switchSession(sID);
+
+        }
+
+        if (sID == session.activeID)
+        {
+          highlightCurrentLine(breakpoint.line);
+          updateInvalidLines();
+        }
 
         // Show the backtrace on the panel.
         if (env.isBacktracePanelActive)
@@ -1770,14 +1807,14 @@ function DebuggerClient(address)
 
         if (message[0] == JERRY_DEBUGGER_EVAL_RESULT_END)
         {
-          logger.log(cesu8ToString(env.evalResult));
+          evalLogger.log(cesu8ToString(env.evalResult));
           env.evalResult = null;
           return;
         }
 
         if (message[0] == JERRY_DEBUGGER_EVAL_ERROR_END)
         {
-          logger.err("Uncaught exception: " + cesu8ToString(env.evalResult));
+          evalLogger.err("Uncaught exception: " + cesu8ToString(env.evalResult));
           env.evalResult = null;
           return;
         }
@@ -1999,174 +2036,41 @@ function DebuggerClient(address)
   }
 }
 
-// Command line illusion
-function debuggerCommand(event)
+function evalCommand(event)
 {
   if (event.keyCode != 13)
   {
     return true;
   }
 
-  var command = env.commandLine.val().trim();
+  var input = env.evalInput.val().trim();
 
-  args = /^([a-zA-Z]+)(?:\s+([^\s].*)|)$/.exec(command);
+  input = /^([a-zA-Z]+)(?:\s+([^\s].*)|)$/.exec(input);
 
-  if (!args)
+  if (!input)
   {
-    logger.err("Invalid command");
-    env.commandLine.val('');
-    return true;
-  }
-
-  if (!args[2])
-  {
-    args[2] = "";
-  }
-
-  if (args[1] == "help")
-  {
-    logger.log("Debugger commands:\n" +
-              "   connect &lt;IP adress:port&gt; - connect to server (default is localhost:5001)\n" +
-              "   break|b &lt;file_name:line&gt;|&lt;function_name&gt; - set breakpoint\n" +
-              "   delete|d &lt;id&gt; - delete breakpoint\n" +
-              "   list - list breakpoints\n" +
-              "   stop - stop execution\n" +
-              "   continue|c - continue execution\n" +
-              "   step|s - step-in execution\n" +
-              "   next|n - connect to server\n" +
-              "   eval|e - evaluate expression\n" +
-              "   backtrace|bt [max-depth] - get backtrace\n" +
-              "   src - print current source code\n" +
-              "   dump - dump all breakpoint data");
-
-    env.commandLine.val('');
-    return true;
-  }
-
-  if (args[1] == "connect")
-  {
-    if (client.debuggerObj)
-    {
-      logger.log("Debugger is connected");
-      return true;
-    }
-
-    var ipAddr = args[2];
-    var PORT = "5001";
-
-    if (ipAddr == "")
-    {
-      ipAddr = "localhost";
-    }
-
-    if (ipAddr.match(/.*:\d/))
-    {
-      var fields = ipAddr.split(":");
-      ipAddr = fields[0];
-      PORT = fields[1];
-    }
-
-    var address = ipAddr + ":" + PORT;
-
-    logger.log("Connect to: " + address);
-
-    client.debuggerObj = new DebuggerClient(address);
-
-    env.commandLine.val('');
+    evalLogger.err("Invalid command");
+    env.evalInput.val('');
     return true;
   }
 
   if (!client.debuggerObj)
   {
-    logger.err("Debugger is NOT connected");
+    evalLogger.err("Debugger is NOT connected");
 
-    env.commandLine.val('');
+    env.evalInput.val('');
     return true;
   }
 
-  switch(args[1])
+  if (input[1] === "e" || input[1] === "eval")
   {
-    case "b":
-    case "break":
-      updateContinueStopButton(button.stop);
-      client.debuggerObj.setBreakpoint(args[2]);
-      break;
-
-    case "d":
-    case "delete":
-      updateContinueStopButton(button.stop);
-      client.debuggerObj.deleteBreakpoint(args[2]);
-      break;
-
-    case "stop":
-      updateContinueStopButton(button.stop);
-      client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_STOP ]);
-      break;
-
-    case "c":
-    case "continue":
-      updateContinueStopButton(button.stop);
-      client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_CONTINUE ]);
-      break;
-
-    case "s":
-    case "step":
-      updateContinueStopButton(button.stop);
-      client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_STEP ]);
-      break;
-
-    case "n":
-    case "next":
-      updateContinueStopButton(button.stop);
-      client.debuggerObj.encodeMessage("B", [ JERRY_DEBUGGER_NEXT ]);
-      break;
-
-    case "e":
-    case "eval":
-      client.debuggerObj.sendEval(args[2]);
-      break;
-
-    case "bt":
-    case "backtrace":
-      updateContinueStopButton(button.stop);
-      env.clBacktrace = true;
-      max_depth = 0;
-
-      if (args[2])
-      {
-        if (/[1-9][0-9]*/.exec(args[2]))
-        {
-          max_depth = parseInt(args[2]);
-        }
-        else
-        {
-          logger.err("Invalid maximum depth argument.");
-          break;
-        }
-      }
-
-      logger.log("Backtrace:");
-
-      client.debuggerObj.encodeMessage("BI", [ JERRY_DEBUGGER_GET_BACKTRACE, max_depth ]);
-      break;
-
-    case "list":
-      client.debuggerObj.listBreakpoints();
-      break;
-
-    case "list":
-      debuggerObj.listBreakpoints();
-      break;
-
-    case "dump":
-      client.debuggerObj.dump();
-      break;
-
-    default:
-      logger.err("Unknown command: " + args[1]);
-      break;
+    client.debuggerObj.sendEval(input[2]);
+  }
+  else
+  {
+    evalLogger.err("Invalid command");
   }
 
-  env.commandLine.val("");
+  env.evalInput.val('');
   return true;
 }
