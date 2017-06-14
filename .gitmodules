@@ -1,9 +1,9 @@
-[submodule "SpaceBubbles"]
-	path = SpaceBubbles
-	url = https://github.com/knightburton/SpaceBubbles
-[submodule "Colors"]
-	path = Colors
-	url = https://github.com/knightburton/Colors
-[submodule "debugger-IDE"]
-	path = debugger-IDE
-	url = https://github.com/knightburton/debugger-IDE
+[submodule "submodules/Colors"]
+	path = submodules/Colors
+	url = https://github.com/knightburton/Colors.git
+[submodule "submodules/SpaceBubbles"]
+	path = submodules/SpaceBubbles
+	url = https://github.com/knightburton/SpaceBubbles.git
+[submodule "submodules/Debugger"]
+	path = submodules/Debugger
+	url = https://github.com/knightburton/debugger-IDE.git

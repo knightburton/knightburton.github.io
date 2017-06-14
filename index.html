@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
     <meta charset="utf-8">
@@ -17,18 +16,19 @@
     <meta property="og:type" content="profile">
 
     <!-- Favicon -->
-    <link rel="icon" href="img/favicon-play-circle.ico" type="image/ico" sizes="16x16">
+    <link rel="icon" href="images/favicon-32x32.ico" type="image/ico" sizes="32x32">
 
+    <!-- Title -->
     <title>knightburton</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="stylesheets/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="css/landing-page.css" rel="stylesheet">
+    <link href="stylesheets/landing-page.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="fonts/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -44,216 +44,231 @@
 
     <!-- Navigation -->
     <nav class="navbar navbar-default navbar-fixed-top topnav" role="navigation">
-        <div class="container topnav">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand topnav" href="#home">KnightBurton</a>
-            </div>
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a href="#games">Games</a>
-                    </li>
-                    <li>
-                        <a href="#about">About</a>
-                    </li>
-                    <li>
-                        <a href="#contact">Contact</a>
-                    </li>
-                </ul>
-            </div>
-            <!-- /.navbar-collapse -->
-        </div>
-        <!-- /.container -->
-    </nav>
+      <div class="container topnav">
 
+        <!-- Header -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand topnav" href="index.html">KnightBurton</a>
+        </div>
+
+        <!-- List -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a href="index.html">Home</a>
+            </li>
+            <li>
+              <a href="games.html">Games</a>
+            </li>
+            <li>
+              <a href="projects.html">Cool projects</a>
+            </li>
+            <li>
+              <a href="tech.html">Tech infos</a>
+            </li>
+            <li>
+              <a href="index.html#contact">Contact</a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </nav>
+    <!-- /Navigation -->
 
     <!-- Header -->
     <a name="home"></a>
     <div class="intro-header">
-        <div class="container">
-
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="intro-message">
-                        <h1>KnightBurton</h1>
-                        <h3>Imre Kiss - Junior Software Engineer<br>
-                            Department of Software Engineering,<br>
-                            University of Szeged</h3>
-                        <hr class="intro-divider">
-                        <ul class="list-inline intro-social-buttons">
-                            <li>
-                                <a href="https://github.com/knightburton" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
-                            </li>
-                            <li>
-                                <a href="https://www.facebook.com/imre.kiss.777" class="btn btn-default btn-lg"><i class="fa fa-facebook fa-fw"></i> <span class="network-name">Facebook</span></a>
-                            </li>
-                            <li>
-                                <a href="https://www.instagram.com/knightburton/" class="btn btn-default btn-lg"><i class="fa fa-instagram fa-fw"></i> <span class="network-name">Instagram</span></a>
-                            </li>
-                            <li>
-                                <a href="https://twitter.com/KnightBurton" class="btn btn-default btn-lg"><i class="fa fa-twitter fa-fw"></i> <span class="network-name">Twitter</span></a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="intro-message">
+              <object id="intro-logo" type="image/svg+xml" data="images/style-logo-original-cropped.svg">
+                Your browser does not support SVG
+              </object>
+              <h1>KnightBurton</h1>
+              <h3>Junior Software Engineer at<br>
+                  University of Szeged,<br>
+                  Department of Software Engineering
+              <hr class="intro-divider">
+              <ul class="list-inline intro-social-buttons">
+                <li>
+                  <a href="https://github.com/knightburton" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i></a>
+                </li>
+                <li>
+                  <a href="https://www.facebook.com/imre.kiss.777" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-facebook fa-fw"></i></a>
+                </li>
+                <li>
+                  <a href="https://www.instagram.com/knightburton/" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-instagram fa-fw"></i></a>
+                </li>
+                <li>
+                  <a href="https://twitter.com/KnightBurton" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-twitter fa-fw"></i></a>
+                </li>
+              </ul>
             </div>
-
+          </div>
         </div>
-        <!-- /.container -->
-
+      </div>
     </div>
-    <!-- /.intro-header -->
+    <!-- /Header -->
 
     <!-- Page Content -->
-
-	<a name="games"></a>
+    <a  name="topics"></a>
     <div class="content-section-a">
+      <div class="container">
+        <!-- Topic selector -->
+        <div class="row text-center">
 
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-5 col-sm-6">
-                    <hr class="section-heading-spacer">
-                    <div class="clearfix"></div>
-                    <h2 class="section-heading">SpaceBubbles</h2>
-                    <p class="lead">Feel free to play with my first HTML5 canvas, JavaScript game. This is a traditional "bubble shooter" game from the good old times.</p>
-                    <p class="lead">Supported platforms: <i class="fa fa-desktop" aria-hidden="true"></i>, <i class="fa fa-laptop" aria-hidden="true"></i></p>
-                    <p class="lead"><a href="http://knightburton.github.io/SpaceBubbles" class="btn btn-default btn-lg"><i class="fa fa-play fa-fw"></i> <span class="play-button">Play</span></a></p>
-                </div>
-                <div class="col-lg-5 col-lg-offset-2 col-sm-6">
-                    <img class="img-responsive" src="img/game-space-bubbles.jpg" alt="SpaceBubbles">
-                </div>
+          <!-- Games -->
+          <div class="col-md-4 col-sm-6 hero-feature">
+            <div class="thumbnail">
+              <img src="images/topic-games.png" alt="">
+              <div class="caption">
+                <h3>Games</h3>
+                <p>A couple of games I have made so far. Feel free to try them.</p>
+                <p>
+                  <a href="games.html" class="btn btn-default">More info</a>
+                </p>
+              </div>
             </div>
+          </div>
+
+          <!-- Stuffs -->
+          <div class="col-md-4 col-sm-6 hero-feature">
+            <div class="thumbnail">
+              <img src="images/topic-projects.png" alt="">
+              <div class="caption">
+                <h3>Cool projects</h3>
+                <p>Some useful and evolving public projects in which I'm a contributor.</p>
+                <p>
+                  <a href="projects.html" class="btn btn-default">More info</a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Technical -->
+          <div class="col-md-4 col-sm-6 hero-feature">
+            <div class="thumbnail">
+              <img src="images/topic-technical.png" alt="">
+              <div class="caption">
+                <h3>Tech infos</h3>
+                <p>What is in my personal workstation. Hardwares and softwares.</p>
+                <p>
+                  <a href="tech.html" class="btn btn-default">More info</a>
+                </p>
+              </div>
+            </div>
+          </div>
 
         </div>
-        <!-- /.container -->
-
+        <!-- /Topic selector -->
+      </div>
     </div>
-    <!-- /.content-section-a -->
+    <!-- /Page Content -->
 
+    <!-- About -->
+    <a  name="topics"></a>
     <div class="content-section-b">
-
-        <div class="container">
-
-            <div class="row">
-                <div class="col-lg-5 col-lg-offset-1 col-sm-push-6  col-sm-6">
-                    <hr class="section-heading-spacer">
-                    <div class="clearfix"></div>
-                    <h2 class="section-heading">#Colors</h2>
-                    <p class="lead">A little fun with colors. If you want to improve your eyesight then let's go and use the play button.</p>
-                    <p class="lead">Supported platforms: <i class="fa fa-desktop" aria-hidden="true"></i>, <i class="fa fa-laptop" aria-hidden="true"></i>, <i class="fa fa-mobile" aria-hidden="true"></i>, <i class="fa fa-tablet" aria-hidden="true"></i></p>
-                    <p class="lead"><a href="http://knightburton.github.io/Colors" class="btn btn-default btn-lg"><i class="fa fa-play fa-fw"></i> <span class="play-button">Play</span></a></p>
-                </div>
-                <div class="col-lg-5 col-sm-pull-6  col-sm-6">
-                    <img class="img-responsive" src="img/game-colors.jpg" alt="Colors">
-                </div>
-            </div>
-
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <h3>About me</h3>
+            <p>
+              My name is Imre Kiss.<br>
+              Ever since I was a kid playing with computer games and I have been interested with technology.<br>
+              My interest began with a Commodore 64 computer which has a huge impress on me (I still really love the 8bit stuffs).
+            </p>
+            <p>
+              A few years later I took every oportunity to improove my knowledge.<br>
+              I chose the IT line when I had to choose - I mean every single time!<br>
+              I studied in an IT and technical oriented high school, I've finished an Internet Application Developer course<br>
+              and after that I've graduated on the University of Szeged as Software Engineering.<br>
+              Besides, I dealt a lot of physical equipments - I mean programmable tools - like PIC, boards, sensors, etc...
+            </p>
+            <p>
+              I really really enjoy creating something new for everybody on the other side of the screen.
+            </p>
+          </div>
         </div>
-        <!-- /.container -->
-
+      </div>
     </div>
-    <!-- /.content-section-b -->
+    <!-- /About -->
 
-    <a name="about"></a>
-    <div class="content-section-a">
-
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-5 col-sm-6">
-                    <hr class="section-heading-spacer">
-                    <div class="clearfix"></div>
-                    <h2 class="section-heading">About me</h2>
-                    <p class="lead">My name is Imre Kiss. Ever since I was a kid playing with computer games and I have been interested with technology. My interest began with a Commodore 64 computer which has a huge impress on me (I still really love the 8bit stuffs).</p>
-                    <p class="lead">A few years later I took every oportunity to improove my knowledge. I chose the IT line when I had to choose - I mean every single time! I studied in an IT and technical oriented high school, I finished an Internet Application Developer course and I study on the University of Szeged, Department of Software Engineering right now. Besides, I dealt a lot of physical equipments - I mean programmable tools - like PIC, boards, sensors, etc...</p>
-                    <p class="lead">I really really enjoy creating something new for everybody on the other side of the screen.</p>
-                </div>
-                <div class="col-lg-5 col-lg-offset-2 col-sm-6">
-                    <img class="profile-img img-responsive img-rounded" src="img/profile-bike.jpg" alt="Riding!">
-                    <img class="profile-img img-responsive img-rounded" src="img/profile-waiting.jpg" alt="Waiting...">
-                </div>
-            </div>
-
-        </div>
-        <!-- /.container -->
-
-    </div>
-
-	<a  name="contact"></a>
+    <!-- Contact -->
+    <a  name="contact"></a>
     <div class="banner">
-
-        <div class="container">
-
-            <div class="row">
-                <div class="col-lg-4">
-                    <h2>Contact</h2>
-                    <p>Feel free to email me to provide some feedback, give me suggestions for new games, or to just say hello!</p>
-                </div>
-                <div class="col-lg-8">
-                    <ul class="list-inline banner-social-buttons">
-                        <li>
-                            <a href="https://github.com/knightburton" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
-                        </li>
-                        <li>
-                            <a href="https://www.facebook.com/imre.kiss.777" class="btn btn-default btn-lg"><i class="fa fa-facebook fa-fw"></i> <span class="network-name">Facebook</span></a>
-                        </li>
-                        <li>
-                            <a href="https://www.instagram.com/knightburton/" class="btn btn-default btn-lg"><i class="fa fa-instagram fa-fw"></i> <span class="network-name">Instagram</span></a>
-                        </li>
-                        <li>
-                            <a href="https://twitter.com/KnightBurton" class="btn btn-default btn-lg"><i class="fa fa-twitter fa-fw"></i> <span class="network-name">Twitter</span></a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4">
+            <h2>Contact</h2>
+            <p>Feel free to email me to provide some feedback, give me suggestions or to just say hello!</p>
+          </div>
+          <div class="col-lg-8">
+            <ul class="list-inline banner-social-buttons">
+              <li>
+                <a href="https://github.com/knightburton" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/imre.kiss.777" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-facebook fa-fw"></i> <span class="network-name">Facebook</span></a>
+              </li>
+              <li>
+                <a href="https://www.instagram.com/knightburton/" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-instagram fa-fw"></i> <span class="network-name">Instagram</span></a>
+              </li>
+              <li>
+                <a href="https://twitter.com/KnightBurton" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-twitter fa-fw"></i> <span class="network-name">Twitter</span></a>
+              </li>
+            </ul>
+          </div>
         </div>
-        <!-- /.container -->
-
+      </div>
     </div>
-    <!-- /.banner -->
+    <!-- /Contact -->
 
     <!-- Footer -->
     <footer>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <ul class="list-inline">
-                        <li>
-                            <a href="#">Home</a>
-                        </li>
-                        <li class="footer-menu-divider">&sdot;</li>
-                        <li>
-                            <a href="#games">Games</a>
-                        </li>
-                        <li class="footer-menu-divider">&sdot;</li>
-                        <li>
-                            <a href="#about">About</a>
-                        </li>
-                        <li class="footer-menu-divider">&sdot;</li>
-                        <li>
-                            <a href="#contact">Contact</a>
-                        </li>
-                    </ul>
-                    <p class="copyright text-muted small">Copyright &copy; KnightBurton 2016. All Rights Reserved</p>
-                </div>
-            </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <ul class="list-inline">
+              <li>
+                <a href="index.html">Home</a>
+              </li>
+              <li class="footer-menu-divider">&sdot;</li>
+              <li>
+                <a href="games.html">Games</a>
+              </li>
+              <li class="footer-menu-divider">&sdot;</li>
+              <li>
+                <a href="projects.html">Cool projects</a>
+              </li>
+              <li class="footer-menu-divider">&sdot;</li>
+              <li>
+                <a href="tech.html">Tech infos</a>
+              </li>
+              <li class="footer-menu-divider">&sdot;</li>
+              <li>
+                <a href="index.html#contact">Contact</a>
+              </li>
+            </ul>
+            <p class="copyright text-muted small">Copyright &copy; KnightBurton 2016-2017. All Rights Reserved</p>
+          </div>
         </div>
+      </div>
     </footer>
+    <!-- /Footer -->
 
     <!-- jQuery -->
-    <script src="js/jquery.js"></script>
+    <script src="scripts/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
 
 </body>
-
 </html>
