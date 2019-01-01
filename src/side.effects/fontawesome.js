@@ -5,27 +5,14 @@ import {
   faInstagram,
   faTwitch,
   faGithub,
-  faBitbucket,
-  faJs,
-  faNodeJs,
-  faReact,
-  faHtml5,
-  faCss3,
-  faSass,
-  faLinux,
-  faPython,
-  faPhp,
-  faGit,
-  faJava
+  faBitbucket
 } from '@fortawesome/free-brands-svg-icons';
 import {
   faCopyright,
+  faGamepad,
   faPlayCircle,
-  faDesktop,
-  faLaptop,
-  faTablet,
-  faMobile,
-  faInfoCircle
+  faCodeBranch,
+  faTools
 } from '@fortawesome/free-solid-svg-icons';
 
 export default [
@@ -37,23 +24,10 @@ export default [
   faTwitch,
   faGithub,
   faBitbucket,
-  faJs,
-  faNodeJs,
-  faReact,
-  faHtml5,
-  faCss3,
-  faSass,
-  faLinux,
-  faPython,
-  faPhp,
-  faGit,
-  faJava,
   //solid
   faCopyright,
+  faGamepad,
   faPlayCircle,
-  faDesktop,
-  faLaptop,
-  faTablet,
-  faMobile,
-  faInfoCircle
+  faCodeBranch,
+  faTools
 ];

@@ -1,31 +1,17 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Nav from 'react-bootstrap/lib/Nav';
 import Container from 'react-bootstrap/lib/Container';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
-import { menu, links } from '../../constants';
+import { links } from '../../constants';
 
 export default class Footer extends React.PureComponent {
   render() {
     return (
-      <footer className="border-top pt-3 pb-3 bg-light">
-        <Container fluid={true}>
-          <Row noGutters={true}>
-            <Col className="text-center">
-              <ul className="list-inline">
-                {menu.map(item => (
-                  <li key={item.key} className="list-inline-item">
-                    <Nav.Link href={item.url}>
-                      {item.title}
-                    </Nav.Link>
-                  </li>
-                )).reduce((prev, curr) => [prev, <span key={curr + menu.length} className="list-inline-item">&sdot;</span>, curr])}
-              </ul>
-            </Col>
-          </Row>
-          <Row noGutters={true}>
-            <Col className="text-center mb-3">
+      <footer className="border-top py-3 bg-light">
+        <Container fluid>
+          <Row noGutters>
+            <Col className="text-center my-3">
               {links.map(link => (
                 <a key={link.key} target="_target" href={link.url} className={`mx-2 h3 icon-color-${link.key}`}>
                   {link.key === 'instagram' &&

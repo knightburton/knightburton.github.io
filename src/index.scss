@@ -2,6 +2,13 @@
 
 body {
   font-family: 'Montserrat';
+  ul {
+    margin: 0;
+    padding: 0;
+    li {
+      list-style-type: none;
+    }
+  }
 }
 
 .icon-color-linkedin {
@@ -32,26 +39,30 @@ body {
   color: #0747A6;
 }
 
-.mobile {
-  @media (max-width: 767.98px) {
-    &-text-center {
-      text-align: center !important;
-    }
-
-    &-img-margin {
-      margin-right: 4rem;
-      margin-left: 4rem;
-    }
-  }
-}
-
 .cursor-pointer {
   cursor: pointer;
 }
 
-.hover {
-  opacity: .5;
-  &:hover {
-    opacity: 1;
+.header-icon {
+  &::before {
+    content: ' ';
+    display: inline-block;
+    position: absolute;
+    width: 5rem;
+    height: 1px;
+    top: 1.75rem;
+    left: calc(100% / 2 - 8rem);
+    background-color: #000;
+  }
+
+  &::after {
+    content: ' ';
+    display: inline-block;
+    position: absolute;
+    width: 5rem;
+    height: 1px;
+    top: 1.75rem;
+    left: calc(100% / 2 + 3rem);
+    background-color: #000;
   }
 }

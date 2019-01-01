@@ -1,11 +1,3 @@
-export const menu = [
-  { key: 'h0m3', title: 'Home', url: '#home' },
-  { key: '4b0ut', title: 'About', url: '#about' },
-  { key: 'g4m3s', title: 'Games', url: '#games' },
-  { key: 'c0ntr1but10ns', title: 'Contributions', url: '#contributions' },
-  { key: 'w0rks', title: 'Works', url: '#works' }
-];
-
 export const links = [
   { key: 'linkedin', url: 'https://www.linkedin.com/in/imre-kiss-8b7778140/' },
   { key: 'facebook', url: 'https://www.facebook.com/imre.kiss.777' },
@@ -14,74 +6,6 @@ export const links = [
   { key: 'twitch', url: 'https://www.twitch.tv/knightburton' },
   { key: 'github', url: 'https://github.com/knightburton' },
   { key: 'bitbucket', url: 'https://bitbucket.org/knightburton/' }
-];
-
-export const schools = [
-  {
-    name: 'Computer Scientist (BSc)',
-    school: 'University of Szeged',
-    duration: '2013 - 2016',
-    link: 'http://www.sci.u-szeged.hu/english'
-  },
-  {
-    name: 'Internet Application Developer',
-    school: 'Kossuth Zsuzsanna/Gregus Máté High School',
-    duration: '2011 - 2013',
-    link: 'http://www.gregus.hiszk.hu/'
-  },
-  {
-    name: 'IT and technical oriented high school',
-    school: 'Kossuth Zsuzsanna/Gregus Máté High School',
-    duration: '2007 - 2011',
-    link: 'http://www.gregus.hiszk.hu/'
-  }
-];
-
-export const experiences = [
-  {
-    name: 'Javascript Developer',
-    place: 'JayStack',
-    duration: '2018.07 - today',
-    link: 'https://jaystack.com/'
-  },
-  {
-    name: 'Software Developer (C, Javascript)',
-    place: 'University of Szeged, Department of Software Engineering',
-    duration: '2016.01 - 2018.06',
-    link: 'http://www.sed.inf.u-szeged.hu/'
-  },
-  {
-    name: 'Frontend Developer',
-    place: 'Truesilver Web Design and Marketing',
-    duration: '2015.07 - 2015.11',
-    link: 'https://truesilver.co.uk/'
-  }
-];
-
-export const skills = [
-  { name: 'Javascript', icon: 'js' },
-  { name: 'Node.js', icon: 'node-js' },
-  { name: 'React', icon: 'react' },
-  { name: 'HTML5', icon: 'html5' },
-  { name: 'CSS3', icon: 'css3' },
-  { name: 'SASS', icon: 'sass' },
-  { name: 'TypeScript', icon: '' },
-  { name: 'Bootstrap', icon: '' },
-  { name: 'Material-UI', icon: '' },
-  { name: 'Redux', icon: '' },
-  { name: 'jQuery', icon: '' },
-  { name: 'MySQL', icon: '' },
-  { name: 'SQL', icon: '' },
-  { name: 'noSQL', icon: '' },
-  { name: 'Linux', icon: 'linux' },
-  { name: 'Python', icon: 'python' },
-  { name: 'PHP', icon: 'php' },
-  { name: 'GIT', icon: 'git' },
-  { name: 'C', icon: '' },
-  { name: 'C++', icon: '' },
-  { name: 'Java', icon: 'java' },
-  { name: 'ASM', icon: '' },
-  { name: 'Vue.js', icon: '' },
 ];
 
 const gamePlatforms = {
