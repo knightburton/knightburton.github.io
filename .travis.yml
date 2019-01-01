@@ -1,0 +1,25 @@
+language: node_js
+node_js: 10
+os: linux
+install:
+  - npm install
+cache:
+  directories:
+    - node_modules
+jobs:
+  include:
+  - stage: Build
+    script:
+    - npm run build
+  - stage: Deploy
+    deploy:
+      provider: pages
+      skip_cleanup: true
+      github_token: $GITHUB_TOKEN
+      local_dir: dist
+      on:
+        branch: source
+      target-branch: master
+      verbose: true
+    script:
+    - "if ! test -d dist; then npm install && npm run build; fi"

@@ -1,0 +1,57 @@
+@import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+
+body {
+  font-family: 'Montserrat';
+}
+
+.icon-color-linkedin {
+  color: #0084bf;
+}
+
+.icon-color-facebook {
+  color: #3b5998;
+}
+
+.icon-color-twitter {
+  color: #1da1f2;
+}
+
+.icon-color-instagram svg * {
+  fill: url(#svg-instagram);
+}
+
+.icon-color-twitch {
+  color: #6441A4;
+}
+
+.icon-color-github {
+  color: #24292e;
+}
+
+.icon-color-bitbucket {
+  color: #0747A6;
+}
+
+.mobile {
+  @media (max-width: 767.98px) {
+    &-text-center {
+      text-align: center !important;
+    }
+
+    &-img-margin {
+      margin-right: 4rem;
+      margin-left: 4rem;
+    }
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover {
+  opacity: .5;
+  &:hover {
+    opacity: 1;
+  }
+}
