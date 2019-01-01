@@ -17,7 +17,9 @@ export default class Games extends React.PureComponent {
                 <span>{game.name}</span>
                 {game.demo &&
                   <small>
-                    <FontAwesomeIcon icon="play-circle" className="ml-2 cursor-pointer" />
+                    <a href={game.demo} target="blank">
+                      <FontAwesomeIcon icon="play-circle" className="ml-2 cursor-pointer" />
+                    </a>
                   </small>
                 }
               </p>
