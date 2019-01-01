@@ -110,6 +110,17 @@ export const games = [
 export const contributions = [
   {
     key: 'iotjscode',
+    name: 'IoT.js VSCode extension',
+    link: 'https://github.com/Samsung/iotjs-vscode-extension',
+    image: '',
+    description: `
+      IoT.js VSCode Extension is a debugger and language (like intelliSense, hover, ...)
+      extension for Visual Studio Code that lets you debug the code which is running on a device,
+      lets you upload your code to the device, directly from the VSCode over websocket communication and helps you to write code with IoT.js.
+    `
+  },
+  {
+    key: 'iotjsvscode',
     name: 'IoT.js Code',
     link: 'https://github.com/Samsung/iotjscode',
     image: 'iotjscode.jpg',
@@ -142,6 +153,16 @@ export const contributions = [
       The target of IoT.js is to run in resource constrained devices such as only few kilobytes of RAM available device.
       Thus it will supports very wide range of "Things".
       IoT.js is just taking the first steps and would like to get together with developers who has interests on our goal.
+    `
+  },
+  {
+    key: 'testresults',
+    name: 'IoT.js - JerryScript test results',
+    link: 'https://github.com/Samsung/iotjs-test-results/tree/merge-webpages',
+    image: '',
+    description: `
+      The purpose of the project is to show the official IoT.js and JerryScript test-suite results on different platforms.
+      The testing happens once a day (at UTC 17:00) using the latest master and the result are visible on this project's gh-pages.
     `
   }
 ];
