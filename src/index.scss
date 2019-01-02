@@ -66,3 +66,16 @@ body {
     background-color: #000;
   }
 }
+
+.mobile {
+  @media (max-width: 767.98px) {
+    &-text-center {
+      text-align: center !important;
+    }
+
+     &-img-margin {
+      margin-right: 4rem;
+      margin-left: 4rem;
+    }
+  }
+}
