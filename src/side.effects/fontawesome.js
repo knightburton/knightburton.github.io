@@ -9,10 +9,12 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 import {
   faCopyright,
-  faGamepad,
   faPlayCircle,
-  faCodeBranch,
-  faTools
+  faDesktop,
+  faLaptop,
+  faTablet,
+  faMobile,
+  faGlobe
 } from '@fortawesome/free-solid-svg-icons';
 
 export default [
@@ -26,8 +28,10 @@ export default [
   faStackOverflow,
   //solid
   faCopyright,
-  faGamepad,
   faPlayCircle,
-  faCodeBranch,
-  faTools
+  faDesktop,
+  faLaptop,
+  faTablet,
+  faMobile,
+  faGlobe
 ];

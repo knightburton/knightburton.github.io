@@ -6,7 +6,7 @@ import Menu from './menu/menu.component';
 import About from './about/about.component';
 import Games from './games/games.component';
 import Contributions from './contributions/contributions.component';
-import Works from './works/works.component';
+import Pages from './pages/pages.component';
 import Footer from './footer/footer.component';
 
 class App extends React.PureComponent {
@@ -19,7 +19,7 @@ class App extends React.PureComponent {
           <Route exact path="/" component={About} />
           <Route exact path="/games" component={Games} />
           <Route exact path="/contributions" component={Contributions} />
-          <Route exact path="/pages" component={Works} />
+          <Route exact path="/pages" component={Pages} />
         </Switch>
         <Footer />
       </div>

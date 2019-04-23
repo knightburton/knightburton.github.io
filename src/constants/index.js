@@ -32,8 +32,8 @@ const gameEngines = {
     link: 'https://github.com/melonjs/melonjs'
   },
   es5: {
-    name: 'EcmaScript 5',
-    link: 'https://www.w3schools.com/js/js_es5.asp'
+    name: 'EcmaScript',
+    link: 'https://tc39.github.io/'
   }
 };
 
@@ -119,7 +119,7 @@ export const contributions = [
     key: 'iotjscode',
     name: 'IoT.js VSCode extension',
     link: 'https://github.com/Samsung/iotjs-vscode-extension',
-    image: '',
+    image: 'iotjs-extension.jpg',
     description: `
       IoT.js VSCode Extension is a debugger and language (like intelliSense, hover, ...)
       extension for Visual Studio Code that lets you debug the code which is running on a device,
@@ -166,7 +166,7 @@ export const contributions = [
     key: 'testresults',
     name: 'IoT.js - JerryScript test results',
     link: 'https://github.com/Samsung/iotjs-test-results/tree/merge-webpages',
-    image: '',
+    image: 'iotjs-results.jpg',
     description: `
       The purpose of the project is to show the official IoT.js and JerryScript test-suite results on different platforms.
       The testing happens once a day (at UTC 17:00) using the latest master and the result are visible on this project's gh-pages.
@@ -174,7 +174,18 @@ export const contributions = [
   }
 ];
 
-export const works = [
+export const pages = [
+  {
+    key: 'japanmotordoki',
+    name: 'Japán Motor Doki',
+    link: 'https://www.japanmotordoki.hu/',
+    image: 'japanmotordoki.jpg',
+    description: `
+      This is a simple business introduction page where you can gather information about a motorcycle repair shop.
+      The website using Node.js, React.js and Bootsrtap with the power of Firebase in the background.
+      The source code of this site is not available for public. If you find something weird or buggy, just let me know.
+    `
+  },
   {
     key: 'borafa',
     name: 'Borafa',
@@ -183,7 +194,7 @@ export const works = [
     description: `
       This is a simple webshop where you can buy handmade jewellery which are made of corkwood.
       The website using React.js, Bootsrtap, jQuery and a few useful smart package.
-      The source code of this site is not available public. If you find something weird or buggy, just ignore that for now, the site is under development.
+      The source code of this site is not available for public. If you find something weird or buggy, just ignore that for now, the site is under development.
     `
   },
   {

@@ -1,4 +1,6 @@
-@import '../node_modules/bootswatch/dist/materia/bootstrap.min.css';
+@import '~bootswatch/dist/materia/_variables.scss';
+@import '~bootstrap/scss/bootstrap.scss';
+@import '~bootswatch/dist/materia/_bootswatch.scss';
 
 body {
   font-family: 'Roboto';
@@ -78,4 +80,11 @@ body {
       margin-left: 4rem;
     }
   }
+}
+
+.card-columns {
+  @media (min-width: 576px) { column-count: 1; }
+  @media (min-width: 768px) { column-count: 2; }
+  @media (min-width: 992px) { column-count: 2; }
+  @media (min-width: 1200px) { column-count: 4; }
 }
