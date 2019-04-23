@@ -1,8 +1,8 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Container from 'react-bootstrap/lib/Container';
-import Row from 'react-bootstrap/lib/Row';
-import Col from 'react-bootstrap/lib/Col';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import { links } from '../../constants';
 
 export default class Footer extends React.PureComponent {
@@ -13,7 +13,7 @@ export default class Footer extends React.PureComponent {
           <Row noGutters>
             <Col className="text-center my-3">
               {links.map(link => (
-                <a key={link.key} target="_target" href={link.url} className={`mx-2 h3 icon-color-${link.key}`}>
+                <a key={link.key} target="_target" href={link.url} className={`mx-2 h3 icon-color-${link.key}`} title={link.text}>
                   {link.key === 'instagram' &&
                     <svg width="0" height="0">
                       <radialGradient id="svg-instagram" r="150%" cx="30%" cy="107%">
@@ -25,7 +25,7 @@ export default class Footer extends React.PureComponent {
                       </radialGradient>
                     </svg>
                   }
-                  <FontAwesomeIcon icon={['fab', link.key]} className={`icon-color-${link.key}`} />
+                  <FontAwesomeIcon icon={['fab', link.icon]} className={`icon-color-${link.key}`} />
                 </a>
               ))}
             </Col>

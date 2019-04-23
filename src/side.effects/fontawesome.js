@@ -5,7 +5,7 @@ import {
   faInstagram,
   faTwitch,
   faGithub,
-  faBitbucket
+  faStackOverflow
 } from '@fortawesome/free-brands-svg-icons';
 import {
   faCopyright,
@@ -23,7 +23,7 @@ export default [
   faInstagram,
   faTwitch,
   faGithub,
-  faBitbucket,
+  faStackOverflow,
   //solid
   faCopyright,
   faGamepad,

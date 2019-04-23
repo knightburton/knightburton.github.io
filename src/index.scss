@@ -1,7 +1,7 @@
-@import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+@import '../node_modules/bootswatch/dist/materia/bootstrap.min.css';
 
 body {
-  font-family: 'Montserrat';
+  font-family: 'Roboto';
   ul {
     margin: 0;
     padding: 0;
@@ -35,8 +35,8 @@ body {
   color: #24292e;
 }
 
-.icon-color-bitbucket {
-  color: #0747A6;
+.icon-color-stackoverflow {
+  color: #F48023;
 }
 
 .cursor-pointer {

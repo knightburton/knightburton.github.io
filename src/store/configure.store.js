@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, compose } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import history from '../side.effects/history';
 import thunk from 'redux-thunk';
@@ -12,7 +12,10 @@ const middlewares = applyMiddleware(
   })
 );
 
-export const store = createStore(
-  //rootReducer,
-  isDevelopment ? composeWithDevTools(middlewares) : middlewares
-);
+const enhancers = [
+  middlewares
+];
+
+export const store = isDevelopment
+  ? createStore(/*rootReducer,*/ composeWithDevTools(...enhancers))
+  : createStore(/*rootReducer,*/ compose(...enhancers));
