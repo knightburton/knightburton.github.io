@@ -8,7 +8,7 @@ import logo from '../../public/images/style-logo-160x160.png';
 export default class Home extends React.PureComponent {
   render() {
     return (
-      <Container className="py-5" id="home" fluid>
+      <Container className="border-bottom py-5" id="home" fluid>
         <Row>
           <Col className="text-center">
             <div className="d-flex flex-row justify-content-center">
