@@ -1,0 +1,28 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - source
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Git Checkout
+      uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - name: Install npm packages
+      run: npm ci
+    - name: Build React App
+      run: npm run build
+      env:
+        NODE_ENV: production
+    - name: Clear dev dependencies from node_modules
+      run: npm prune --production
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@4.1.7
+      with:
+        branch: master
+        folder: build
