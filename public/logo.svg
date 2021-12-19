@@ -1,0 +1,22 @@
+<svg id="short-nickname" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        font-size: 250px;
+        text-anchor: middle;
+        font-family: Teko;
+        font-weight: 300;
+      }
+
+      .cls-1 {
+        fill: #393e46;
+      }
+
+      .cls-2 {
+        fill: #00adb5;
+      }
+    </style>
+  </defs>
+  <text id="base-text_copy_2" data-name="base-text copy 2" class="cls-1" transform="matrix(-2.465, 0, 0, 2.463, 188.045, 462)"><tspan x="0">k</tspan></text>
+  <text id="overlay-text_copy_2" data-name="overlay-text copy 2" class="cls-2" transform="translate(355.455 462) scale(2.465 2.463)"><tspan x="0">b</tspan></text>
+</svg>
